@@ -100,7 +100,12 @@ int main(void)
     Texture texture;
     texture.loadFromFile("texture.bmp");
 
-    Camera camera;
+    float ratio;
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    ratio = width / (float) height;
+    br.getCamera()->setOrthographic(-ratio, ratio, -1, 1, -1, 1);
+    
     Sampler sampler;
     bool old = true;
     int counter = 0;
@@ -109,16 +114,13 @@ int main(void)
     
     while (!glfwWindowShouldClose(window))
     {
-	float ratio;
-	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float) height;
 	glViewport(0, 0, width, height);
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	camera.setOrthographic(-ratio, ratio, -1, 1, -1, 1);
-	br.draw(camera);
+	br.begin();
 
 	glActiveTexture(GL_TEXTURE0);
 	texture.bind();
@@ -126,6 +128,8 @@ int main(void)
 	sampler.bind(0);
 	
 	mesh->draw();
+
+	br.end();
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();

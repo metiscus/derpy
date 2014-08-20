@@ -13,7 +13,11 @@
 
 #include <string>
 
+#include "Camera.h"
+
 BatchRenderer::BatchRenderer()
+    : mCamera(new Camera())
+    , mIsRendering(false)
 {
     _buildShaderProgram();
 }
@@ -23,11 +27,37 @@ BatchRenderer::~BatchRenderer()
 
 }
 
-void BatchRenderer::draw(const Camera& camera)
+void BatchRenderer::begin()
 {
+    if(mIsRendering)
+    {
+	fprintf(stderr, "[BatchRenderer::begin()] BatchRenderer::end() must be called before calling begin() again.\n");
+    }
+    
     mProgram->use();
-    mProjectionMatrixUniform->set(camera.getProjectionMatrix());
-    mViewMatrixUniform->set(camera.getViewMatrix());
+    mProjectionMatrixUniform->set(mCamera->getProjectionMatrix());
+    mViewMatrixUniform->set(mCamera->getViewMatrix());
+    mIsRendering = true;
+}
+
+void BatchRenderer::end()
+{
+    //\TODO: Implement cleaning up our state
+    if(!mIsRendering)
+    {
+	fprintf(stderr, "[BatchRenderer::begin()] BatchRenderer::begin() must be called before calling end().\n");
+    }
+    mIsRendering = false;
+}
+
+std::shared_ptr<Camera> BatchRenderer::getCamera()
+{
+    return mCamera;
+}
+
+void BatchRenderer::setCamera(std::shared_ptr<Camera> camera)
+{
+    mCamera = camera;
 }
 
 void BatchRenderer::_buildShaderProgram()

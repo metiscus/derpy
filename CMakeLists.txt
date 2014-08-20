@@ -8,7 +8,7 @@ if(OPENGL_FOUND)
 	if(APPLE)
 		set(CMAKE_CXX_LINK_FLAGS "-framework OpenGL -framework GLUT")
 	endif(APPLE)
-	
+
 	include_directories(${OPENGL_INCLUDE_DIR})
 endif(OPENGL_FOUND)
 
