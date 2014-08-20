@@ -17,7 +17,10 @@ public:
 	~MeshRenderer();
 
 	void begin();
+	
 	void end();
+	
+	
 	void bindTexture(int id);
 
 	void setShaderText( Shader::Type type, const std::string& text );
