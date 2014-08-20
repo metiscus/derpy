@@ -1,4 +1,4 @@
-#include "BatchRenderer.h"
+#include "MeshRenderer.h"
 #include "Camera.h"
 #include "Shader.h"
 #include "Program.h"
@@ -15,23 +15,23 @@
 
 #include "Camera.h"
 
-BatchRenderer::BatchRenderer()
+MeshRenderer::MeshRenderer()
     : mCamera(new Camera())
     , mIsRendering(false)
 {
     _buildShaderProgram();
 }
 
-BatchRenderer::~BatchRenderer()
+MeshRenderer::~MeshRenderer()
 {
 
 }
 
-void BatchRenderer::begin()
+void MeshRenderer::begin()
 {
     if(mIsRendering)
     {
-	fprintf(stderr, "[BatchRenderer::begin()] BatchRenderer::end() must be called before calling begin() again.\n");
+	fprintf(stderr, "[MeshRenderer::begin()] MeshRenderer::end() must be called before calling begin() again.\n");
     }
     
     mProgram->use();
@@ -40,27 +40,27 @@ void BatchRenderer::begin()
     mIsRendering = true;
 }
 
-void BatchRenderer::end()
+void MeshRenderer::end()
 {
     //\TODO: Implement cleaning up our state
     if(!mIsRendering)
     {
-	fprintf(stderr, "[BatchRenderer::begin()] BatchRenderer::begin() must be called before calling end().\n");
+	fprintf(stderr, "[MeshRenderer::begin()] MeshRenderer::begin() must be called before calling end().\n");
     }
     mIsRendering = false;
 }
 
-std::shared_ptr<Camera> BatchRenderer::getCamera()
+std::shared_ptr<Camera> MeshRenderer::getCamera()
 {
     return mCamera;
 }
 
-void BatchRenderer::setCamera(std::shared_ptr<Camera> camera)
+void MeshRenderer::setCamera(std::shared_ptr<Camera> camera)
 {
     mCamera = camera;
 }
 
-void BatchRenderer::_buildShaderProgram()
+void MeshRenderer::_buildShaderProgram()
 {
     mProgram.reset(new Program());
 
@@ -119,7 +119,7 @@ void BatchRenderer::_buildShaderProgram()
     glBindFragDataLocation( mProgram->getProgram(), 0, "fragColor" );
 }
 
-void BatchRenderer::bindTexture( int id )
+void MeshRenderer::bindTexture( int id )
 {
     mSamplerUniform->set(0);
 }

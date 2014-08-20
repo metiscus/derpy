@@ -3,7 +3,7 @@
 #include <GL/gl.h>
 
 #include "stb_image.h"
-#include "BatchRenderer.h"
+#include "MeshRenderer.h"
 #include "Camera.h"
 #include "Program.h"
 #include "Shader.h"
@@ -67,7 +67,7 @@ int main(void)
 
     glfwSetKeyCallback(window, key_callback);
 
-    BatchRenderer br;
+    MeshRenderer br;
 
     // back to the vbo trick
 

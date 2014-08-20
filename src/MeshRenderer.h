@@ -1,5 +1,5 @@
-#ifndef BATCHRENDERER_H_
-#define BATCHRENDERER_H_
+#ifndef MESHRENDERER_H_
+#define MESHRENDERER_H_
 
 #include "Platform.h"
 #include "Shader.h"
@@ -10,11 +10,11 @@ class Camera;
 
 class Batch;
 
-class BatchRenderer
+class MeshRenderer
 {
 public:
-	BatchRenderer();
-	~BatchRenderer();
+	MeshRenderer();
+	~MeshRenderer();
 
 	void begin();
 	void end();
@@ -36,4 +36,4 @@ private:
 	std::shared_ptr<Camera>  mCamera;
 };
 
-#endif /* BATCHRENDERER_H_ */
+#endif /* MESHRENDERER_H_ */
