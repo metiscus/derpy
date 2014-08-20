@@ -5,9 +5,9 @@ Camera::Camera()
     ;
 }
 
-void Camera::setOrthographic(float left, float right, float bottom, float top, float back, float front)
+void Camera::setOrthographic(float left, float right, float bottom, float top, float zNear, float zFar)
 {
-    mProjectionMatrix = glm::ortho(left, right, bottom, top, back, front);
+    mProjectionMatrix = glm::ortho(left, right, bottom, top, zNear, zFar);
 }
 
 void Camera::setView(glm::vec3 eye, glm::vec3 center, glm::vec3 up)

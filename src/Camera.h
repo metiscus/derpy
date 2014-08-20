@@ -9,7 +9,7 @@ class Camera
 {
 public:
     Camera();
-    void setOrthographic(float left, float right, float bottom, float top, float back, float front);
+    void setOrthographic(float left, float right, float bottom, float top, float zNear, float zFar);
     void setView(glm::vec3 eye, glm::vec3 center, glm::vec3 up);
 
     const glm::mat4& getProjectionMatrix() const;

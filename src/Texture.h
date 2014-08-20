@@ -1,6 +1,8 @@
 #ifndef TEXTURE_H_
 #define TEXTURE_H_
 
+#include "Platform.h"
+
 class Texture
 {
 public:
@@ -11,7 +13,14 @@ public:
     
     void bind();
     
+    int getWidth() const;
+    int getHeight() const;
+    
+    bool operator==( const Texture& rhs ) const;
+    
 private:
+    int mWidth;
+    int mHeight;
     unsigned int mTexture;
 };
 
