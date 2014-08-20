@@ -182,6 +182,26 @@ void Mesh::addTriangles(const VertexList& verts, const TexCoordList& texcoords, 
     }
 }
 
+void Mesh::addIndices(const IndexList& indices)
+{
+    if(mUseIndexedDrawing)
+    {
+	unsigned int numTriangles = indices.size() / 3;
+	if(3*numTriangles != indices.size())
+	{
+	    fprintf(stderr, "[Mesh::addIndices] passed in index list not multiple of three.\n");
+	}
+	else {
+	    mIsBufferDirty = true;
+	    mIndicesRaw.insert(mIndicesRaw.end(), indices.begin(), indices.end());
+	    mIndices.insert(mIndices.end(), indices.begin(), indices.end());
+	}
+    }    
+    else {
+	fprintf(stderr, "[Mesh::addIndices] tried adding index data when not in indexed draw mode.\n");
+    }
+}
+
 const glm::mat4& Mesh::getModelMatrix() const
 {
     return mModelMatrix;

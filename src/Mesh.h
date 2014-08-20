@@ -21,6 +21,7 @@ public:
     void draw();
     
     void addTriangles(const VertexList& verts, const TexCoordList& texcoords, const ColorList& colors, const IndexList& indices);
+    void addIndices(const IndexList& indices);
     
     bool disableColor();
     bool enableColor();
