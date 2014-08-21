@@ -34,7 +34,7 @@ void Mesh::_synchronizeDataBuffers()
 {
     if(mIsBufferDirty)
     {
-	fprintf(stderr, "rebuilding VBO due to dirty buffer flag: %d.\n", mData.size());
+	fprintf(stderr, "[Mesh::_synchronizeDataBuffers] rebuilding VBO due to dirty buffer flag: %d.\n", mData.size());
 	mIsBufferDirty = false;
 	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 	glBufferData(GL_ARRAY_BUFFER, mData.size() * sizeof(float), &mData[0], GL_DYNAMIC_DRAW);

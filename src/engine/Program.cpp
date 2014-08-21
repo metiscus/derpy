@@ -58,7 +58,7 @@ bool Program::link()
     for(unsigned int ii=0; ii<mUniforms.size(); ++ii)
     {
         mUniforms[ii]->mUniform = glGetUniformLocation(mProgram, mUniforms[ii]->mName.c_str());
-        fprintf(stderr, "Found %s at %d\n", mUniforms[ii]->mName.c_str(), mUniforms[ii]->mUniform);
+        fprintf(stderr, "[Program::link] Found %s at %d\n", mUniforms[ii]->mName.c_str(), mUniforms[ii]->mUniform);
     }
     
     return true;
