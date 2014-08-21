@@ -176,6 +176,22 @@ bool Texture::setFromData(const TextureData& data)
     mData = data;
 }
 
+TextureData& Texture::getDataRW()
+{
+    mIsDirty = true;    // automatically mark as dirty
+    return mData;
+}
+
+const TextureData& Texture::getDataRO() const
+{
+    return mData;    
+}
+
+void Texture::dirty()
+{
+    mIsDirty = true;
+}
+
 bool Texture::operator==(const Texture& rhs) const
 {
     return mTexture == rhs.mTexture;
@@ -207,7 +223,7 @@ void Texture::enableGenerateMipmaps()
     mGenerateMipmaps = true;
 }
 
-void Texture::disabeGenerateMipmaps()
+void Texture::disableGenerateMipmaps()
 {
     mGenerateMipmaps = false;
 }

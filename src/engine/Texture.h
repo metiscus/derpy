@@ -48,6 +48,9 @@ public:
     bool loadFromFile(const char* filename);
     bool setFromData(const TextureData& data);
     
+    TextureData& getDataRW();
+    const TextureData& getDataRO() const;
+    
     void bind();
     
     int getWidth() const;
@@ -56,9 +59,11 @@ public:
     bool operator==(const Texture& rhs) const;
     
     void enableGenerateMipmaps();
-    void disabeGenerateMipmaps();
+    void disableGenerateMipmaps();
     
     unsigned int getObject();
+    
+    void dirty();
     
 private:
     unsigned int mTexture;
