@@ -32,8 +32,5 @@ namespace std {
 }
 
 #endif
-    
-
-
 
 #endif /* PLATFORM_H_ */

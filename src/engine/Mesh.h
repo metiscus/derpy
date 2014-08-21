@@ -2,6 +2,7 @@
 #define MESH_H_
 
 #include "Platform.h"
+#include "Noncopyable.h"
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -12,7 +13,7 @@ typedef std::vector<glm::vec4> ColorList;
 typedef std::vector<glm::vec2> TexCoordList;
 typedef std::vector<unsigned short> IndexList;
 
-class Mesh
+class Mesh : public noncopyable
 {
 public:
     Mesh();

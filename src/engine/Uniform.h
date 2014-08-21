@@ -4,7 +4,9 @@
 #include <glm/glm.hpp>
 #include <string>
 
-class Uniform
+#include "Noncopyable.h"
+
+class Uniform : public noncopyable
 {
 public:
     enum Type {

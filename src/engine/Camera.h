@@ -5,7 +5,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
-class Camera 
+#include "Noncopyable.h"
+
+class Camera : public noncopyable
 {
 public:
     Camera();

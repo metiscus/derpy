@@ -3,7 +3,9 @@
 
 #include <string>
 
-class Shader
+#include "Noncopyable.h"
+
+class Shader : public noncopyable
 {
 public:
     enum Type {

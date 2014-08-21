@@ -1,7 +1,9 @@
 #ifndef SAMPLER_H_
 #define SAMPLER_H_
 
-class Sampler
+#include "Noncopyable.h"
+
+class Sampler : public noncopyable
 {
 public:
     Sampler();

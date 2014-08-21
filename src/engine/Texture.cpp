@@ -91,6 +91,11 @@ int Texture::getHeight() const
 {
     return mHeight;
 }
+
+unsigned int Texture::getObject()
+{
+    return mTexture;
+}
     
 void Texture::bind()
 {

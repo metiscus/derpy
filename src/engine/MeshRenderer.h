@@ -1,6 +1,7 @@
 #ifndef MESHRENDERER_H_
 #define MESHRENDERER_H_
 
+#include "Noncopyable.h"
 #include "Platform.h"
 #include "Shader.h"
 
@@ -10,7 +11,7 @@ class Camera;
 
 class Batch;
 
-class MeshRenderer
+class MeshRenderer : public noncopyable
 {
 public:
 	MeshRenderer();
@@ -31,12 +32,15 @@ public:
 private:
 	void _buildShaderProgram();
 
+	bool mIsDirty;
 	bool mIsRendering;
 	std::shared_ptr<Program> mProgram;
 	std::shared_ptr<Uniform> mProjectionMatrixUniform;
 	std::shared_ptr<Uniform> mViewMatrixUniform;
 	std::shared_ptr<Uniform> mSamplerUniform;
 	std::shared_ptr<Camera>  mCamera;
+	std::string mVertexShaderSource;
+	std::string mFragmentShaderSource;
 };
 
 #endif /* MESHRENDERER_H_ */

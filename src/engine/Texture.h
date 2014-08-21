@@ -1,9 +1,9 @@
 #ifndef TEXTURE_H_
 #define TEXTURE_H_
 
-#include "Platform.h"
+#include "Noncopyable.h"
 
-class Texture
+class Texture : public noncopyable
 {
 public:
     Texture();
@@ -17,6 +17,8 @@ public:
     int getHeight() const;
     
     bool operator==( const Texture& rhs ) const;
+    
+    unsigned int getObject();
     
 private:
     int mWidth;

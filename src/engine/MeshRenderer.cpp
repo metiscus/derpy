@@ -15,11 +15,35 @@
 
 #include "Camera.h"
 
+static const char* defaultVertexShader =
+	"#version 330\n"
+	"layout(location=0) in vec3 vertexIn;\n"
+	"layout(location=2) in vec2 texCoordIn;\n"
+	"out vec2 texCoordOut;\n"
+	"uniform mat4 projectionMat;\n"
+	"uniform mat4 viewMat;\n"
+	"void main() {\n"
+	"gl_Position = projectionMat * viewMat * vec4(vertexIn.xyz, 1.f);\n"
+	"texCoordOut = texCoordIn;\n"
+	"}\n";
+
+static const char* defaultFragmentShader =
+	"#version 330\n"
+	"uniform sampler2D texSampler;\n"
+	"in vec2 texCoordOut;\n"
+	"layout(location=0) out vec4 fragColor;\n"
+	"void main() {\n"
+	"   fragColor = vec4(texture2D(texSampler, texCoordOut).rgb,1.0f);\n"
+	"   //fragColor = vec4(texture(texSampler, texCoordOut).rgb,1.0f)+vec4(texCoordOut.rg, 1.0, 1.0f);\n"
+	"}";	
+
 MeshRenderer::MeshRenderer()
     : mCamera(new Camera())
     , mIsRendering(false)
+    , mIsDirty(true)
 {
-    _buildShaderProgram();
+    mVertexShaderSource = defaultVertexShader;
+    mFragmentShaderSource = defaultFragmentShader;
 }
 
 MeshRenderer::~MeshRenderer()
@@ -27,11 +51,23 @@ MeshRenderer::~MeshRenderer()
 
 }
 
+void MeshRenderer::setShaderText( Shader::Type type, const std::string& text )
+{
+    
+    
+}
+
 void MeshRenderer::begin()
 {
     if(mIsRendering)
     {
 	fprintf(stderr, "[MeshRenderer::begin()] MeshRenderer::end() must be called before calling begin() again.\n");
+    }
+    
+    if(mIsDirty)
+    {
+	mIsDirty = false;
+	_buildShaderProgram();
     }
     
     mProgram->use();
@@ -64,35 +100,15 @@ void MeshRenderer::_buildShaderProgram()
 {
     mProgram.reset(new Program());
 
-    const char* defaultVertexShader =
-	    "#version 330\n"
-	    "layout(location=0) in vec3 vertexIn;\n"
-	    "layout(location=2) in vec2 texCoordIn;\n"
-	    "out vec2 texCoordOut;\n"
-	    "uniform mat4 projectionMat;\n"
-	    "uniform mat4 viewMat;\n"
-	    "void main() {\n"
-	    "gl_Position = projectionMat * viewMat * vec4(vertexIn.xyz, 1.f);\n"
-	    "texCoordOut = texCoordIn;\n"
-	    "}\n";
     std::shared_ptr<Shader> vertexShader(new Shader(Shader::Vertex));
-    vertexShader->setText(defaultVertexShader);
+    vertexShader->setText(mVertexShaderSource.c_str());
     if(!vertexShader->compile())
     {
 	fprintf(stderr, "Shader compile error: %s\n", vertexShader->getCompileErrors().c_str());
     }
 
-    const char* defaultFragmentShader =
-	    "#version 330\n"
-	    "uniform sampler2D texSampler;\n"
-	    "in vec2 texCoordOut;\n"
-	    "layout(location=0) out vec4 fragColor;\n"
-	    "void main() {\n"
-	    "   fragColor = vec4(texture2D(texSampler, texCoordOut).rgb,1.0f);\n"
-	    "   //fragColor = vec4(texture(texSampler, texCoordOut).rgb,1.0f)+vec4(texCoordOut.rg, 1.0, 1.0f);\n"
-	    "}";
     std::shared_ptr<Shader> fragmentShader(new Shader(Shader::Fragment));
-    fragmentShader->setText(defaultFragmentShader);
+    fragmentShader->setText(mFragmentShaderSource.c_str());
     if(!fragmentShader->compile())
     {
 	fprintf(stderr, "Shader compile error: %s\n", fragmentShader->getCompileErrors().c_str());

@@ -41,7 +41,7 @@ void Mesh::_synchronizeDataBuffers()
 	if(mUseIndexedDrawing)
 	{
 	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mElementBuffer);
-	    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(mIndices) * sizeof(short), &mIndices[0], GL_DYNAMIC_DRAW);
+	    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size()*sizeof(short), &mIndices[0], GL_DYNAMIC_DRAW);
 	}
     }
 }
@@ -75,7 +75,7 @@ void Mesh::draw()
 
     if(mUseIndexedDrawing)
     {
-	unsigned int triangleCount = mData.size() / (3 + 2 + 4);
+	unsigned int triangleCount = (mUseColor) ? mData.size() / (3 + 2 + 4) : mData.size() / (3 + 2);
 	glDrawElements(GL_TRIANGLES, triangleCount, GL_UNSIGNED_SHORT, 0);
     }
     else

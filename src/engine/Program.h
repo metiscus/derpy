@@ -1,15 +1,15 @@
 #ifndef PROGRAM_H_
 #define PROGRAM_H_
 
+#include "Noncopyable.h"
 #include "Platform.h"
 #include "Uniform.h"
 #include <string>
 #include <vector>
 
 class Shader;
-//class Uniform;
 
-class Program
+class Program : public noncopyable
 {
 public:
     Program();
