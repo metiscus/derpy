@@ -1,7 +1,8 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(engine)
 
-file(GLOB ogltest_SOURCES *.cpp *.h)
+file(GLOB derpus_SOURCES engine/*.cpp engine/*.h)
 
-add_executable( ogltest ${ogltest_SOURCES} )
+add_library(derpus SHARED ${derpus_SOURCES})
 
-target_link_libraries(ogltest glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
+add_subdirectory(tests)

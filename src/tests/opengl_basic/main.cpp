@@ -98,13 +98,13 @@ int main(void)
     glEnable(GL_TEXTURE_2D);
 
     Texture texture;
-    texture.loadFromFile("texture.bmp");
+    texture.loadFromFile("data/derp.png");
 
     float ratio;
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     ratio = width / (float) height;
-    br.getCamera()->setOrthographic(-ratio, ratio, -1, 1, -1, 1);
+    br.getCamera()->setOrthographic(-5, 5, -5, 5, -1, 1);
     
     Sampler sampler;
     bool old = true;
