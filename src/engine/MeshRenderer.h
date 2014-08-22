@@ -5,11 +5,11 @@
 #include "Platform.h"
 #include "Shader.h"
 
+#include <vector>
+
 class Program;
 class Uniform;
 class Camera;
-
-class Batch;
 
 class MeshRenderer : public noncopyable
 {
@@ -28,6 +28,8 @@ public:
 	
 	std::shared_ptr<Camera> getCamera();
 	void setCamera(std::shared_ptr<Camera> camera);
+	
+	void addCustomUniform( std::shared_ptr<Uniform> uniform );
 
 private:
 	void _buildShaderProgram();
@@ -39,6 +41,7 @@ private:
 	std::shared_ptr<Uniform> mViewMatrixUniform;
 	std::shared_ptr<Uniform> mSamplerUniform;
 	std::shared_ptr<Camera>  mCamera;
+	std::vector<std::shared_ptr<Uniform> > mCustomUniforms;
 	std::string mVertexShaderSource;
 	std::string mFragmentShaderSource;
 };

@@ -61,7 +61,7 @@ void MeshRenderer::begin()
 {
     if(mIsRendering)
     {
-	fprintf(stderr, "[MeshRenderer::begin()] MeshRenderer::end() must be called before calling begin() again.\n");
+	fprintf(stderr, "[MeshRenderer::begin] MeshRenderer::end() must be called before calling begin() again.\n");
     }
     
     if(mIsDirty)
@@ -81,7 +81,7 @@ void MeshRenderer::end()
     //\TODO: Implement cleaning up our state
     if(!mIsRendering)
     {
-	fprintf(stderr, "[MeshRenderer::begin()] MeshRenderer::begin() must be called before calling end().\n");
+	fprintf(stderr, "[MeshRenderer::end] MeshRenderer::begin() must be called before calling end().\n");
     }
     mIsRendering = false;
 }
@@ -96,6 +96,16 @@ void MeshRenderer::setCamera(std::shared_ptr<Camera> camera)
     mCamera = camera;
 }
 
+void MeshRenderer::bindTexture(int id)
+{
+    mSamplerUniform->set(0);
+}
+
+void MeshRenderer::addCustomUniform(std::shared_ptr<Uniform> uniform)
+{
+    mCustomUniforms.push_back(uniform);
+}
+
 void MeshRenderer::_buildShaderProgram()
 {
     mProgram.reset(new Program());
@@ -104,14 +114,14 @@ void MeshRenderer::_buildShaderProgram()
     vertexShader->setText(mVertexShaderSource.c_str());
     if(!vertexShader->compile())
     {
-	fprintf(stderr, "Shader compile error: %s\n", vertexShader->getCompileErrors().c_str());
+	fprintf(stderr, "[MeshRenderer::_buildShaderProgram] Shader compile error: %s\n", vertexShader->getCompileErrors().c_str());
     }
 
     std::shared_ptr<Shader> fragmentShader(new Shader(Shader::Fragment));
     fragmentShader->setText(mFragmentShaderSource.c_str());
     if(!fragmentShader->compile())
     {
-	fprintf(stderr, "Shader compile error: %s\n", fragmentShader->getCompileErrors().c_str());
+	fprintf(stderr, "[MeshRenderer::_buildShaderProgram] Shader compile error: %s\n", fragmentShader->getCompileErrors().c_str());
     }
 
     mProjectionMatrixUniform.reset(new Uniform(Uniform::Uniform_mat4, "projectionMat"));
@@ -121,23 +131,25 @@ void MeshRenderer::_buildShaderProgram()
     mProgram->addUniform(mProjectionMatrixUniform);
     mProgram->addUniform(mViewMatrixUniform);
     mProgram->addUniform(mSamplerUniform);
-
+    
+    // 
+    for(int ii=0; ii<mCustomUniforms.size(); ++ii)
+    {
+	mProgram->addUniform(mCustomUniforms[ii]);
+    }
+    
+    //
     mProgram->addShader(vertexShader);
     mProgram->addShader(fragmentShader);
     if(!mProgram->link())
     {
-	fprintf(stderr, "Shader compile error: %s\n", mProgram->getLinkErrors().c_str());
+	fprintf(stderr, "[MeshRenderer::_buildShaderProgram] Shader compile error: %s\n", mProgram->getLinkErrors().c_str());
     }
 
     mProgram->use();
     mSamplerUniform->set(0);
 
     glBindFragDataLocation( mProgram->getProgram(), 0, "fragColor" );
-}
-
-void MeshRenderer::bindTexture( int id )
-{
-    mSamplerUniform->set(0);
 }
 
 static void show_info_log(

@@ -42,25 +42,6 @@ int main(void)
 	exit(EXIT_FAILURE);
     }
 
-    float verticies[] = {-0.6f, -0.4f, 0.f,
-			0.6f, -0.4f, 0.f,
-			0.f, 0.6f, 0.f };
-
-    float colors[] = {1.f, 0.f, 0.f,
-		      0.f, 1.f, 0.f,
-		    0.f, 0.f, 1.f };
-
-    float texcoords[] = {0.0, 0.0,
-			1.0, 0.0,
-			0.5, 1.0};
-
-    float vbodata[] = {-0.6f, -0.4f, 0.f,
-			0.6f, -0.4f, 0.f,
-			0.f, 0.6f, 0.f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			0.5f, 1.0f };
-
     glfwMakeContextCurrent(window);
     // initialize glew
     glewInit();
@@ -69,36 +50,38 @@ int main(void)
 
     MeshRenderer br;
 
-    // back to the vbo trick
-
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vbodata), vbodata, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     // make a new mesh
     std::shared_ptr<Mesh> mesh (new Mesh());
     VertexList verts;
-    verts.push_back(glm::vec3(-0.6f,-0.4f, 0.f));
-    verts.push_back(glm::vec3( 0.6f,-0.4f, 0.f));
-    verts.push_back(glm::vec3( 0.0f, 0.6f, 0.f));
+    verts.push_back(glm::vec3( 0.0f, 0.0f, 0.0f));
+    verts.push_back(glm::vec3( 1.0f, 0.0f, 0.0f));
+    verts.push_back(glm::vec3( 1.0f, 1.0f, 0.0f));
+    verts.push_back(glm::vec3( 0.0f, 1.0f, 0.0f));
 
     TexCoordList texCoords;
-    texCoords.push_back(glm::vec2(0.0, 0.0));
-    texCoords.push_back(glm::vec2(1.0, 0.0));
-    texCoords.push_back(glm::vec2(0.5, 1.0));
+    texCoords.push_back(glm::vec2(0.0f, 0.0f));
+    texCoords.push_back(glm::vec2(1.0f, 0.0f));
+    texCoords.push_back(glm::vec2(1.0f, 1.0f));
+    texCoords.push_back(glm::vec2(0.0f, 1.0f));
+
+    IndexList indexList;
+    indexList.push_back( 0 );
+    indexList.push_back( 1 );
+    indexList.push_back( 2 );
+    indexList.push_back( 0 );
+    indexList.push_back( 2 );
+    indexList.push_back( 3 );
 
     ColorList emptyColorList;
-    IndexList emptyIndexList;
-    mesh->disableColor ();
-    mesh->addTriangles(verts, texCoords, emptyColorList, emptyIndexList);
+    mesh->disableColor();
+    mesh->enableIndexedDrawing();
+    mesh->addTriangles(verts, texCoords, emptyColorList, indexList);
 
     // Load up the texture
     glEnable(GL_TEXTURE_2D);
 
     Texture texture;
-    texture.loadFromFile("data/derp.png");
+    texture.loadFromFile("data/crate.jpg");
 
     float ratio;
     int width, height;

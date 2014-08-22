@@ -13,7 +13,6 @@
 /********************
  * class TextureData
  ********************/
-
 TextureData::TextureData()
     : mWidth(0)
     , mHeight(0)
@@ -86,15 +85,32 @@ const unsigned char* TextureData::getData() const
 unsigned char* TextureData::operator[](const unsigned int& index)
 {
     // compute texel width in bytes
-    size_t texelWidth = (int)mType;
+    const size_t texelWidth = (size_t)mType;
     return &mData[index*texelWidth*mChannels];
 }
 
 unsigned char* TextureData::operator()(const unsigned int& x, const unsigned int& y)
 {
     // compute texel width in bytes
-    size_t texelWidth = (int)mType;
+    const size_t texelWidth = (size_t)mType;
     return &(mData[texelWidth*(y * mWidth * mChannels + x)]);
+}
+
+void TextureData::flipImageVertical()
+{
+    // compute texel width in bytes
+    const size_t texelWidth = (size_t)mType;
+    const size_t lineWidth  = texelWidth * mChannels * mWidth;
+    std::vector<unsigned char> scanline;
+    scanline.resize(lineWidth);
+    for(int ii=0; ii<=mHeight / 2; ++ii)
+    {
+        unsigned char* ptr_to   = &mData[ii * lineWidth];
+        unsigned char* ptr_from = &mData[(mHeight - 1 - ii) * lineWidth];
+        scanline.assign(ptr_to, ptr_to+lineWidth);
+        memcpy(ptr_to, ptr_from, lineWidth);
+        memcpy(ptr_from, &scanline[0], lineWidth);
+    }
 }
 
 /********************
@@ -110,20 +126,6 @@ Texture::Texture()
 Texture::~Texture()
 {
     glDeleteTextures(1, &mTexture);
-}
-
-//Important: assumes pixel size is 4
-static inline void textureVFlip(unsigned char* buffer, size_t linePixels, size_t lineCount)
-{
-    size_t pixelCount = linePixels*lineCount;
-    int *pixBuff = new int [pixelCount];
-    for(size_t head=0, tail=pixelCount-1; tail !=0; ++head, --tail)
-    {
-        pixBuff[head] = ((int*)buffer)[tail];
-    }
-    
-    memcpy(buffer, pixBuff, pixelCount*sizeof(int));
-    delete [] pixBuff;
 }
 
 bool Texture::loadFromFile(const char* filename)
@@ -156,24 +158,26 @@ bool Texture::loadFromFile(const char* filename)
             fprintf(stderr, "[Texture::loadFromFile] file is of type %s\n", extension.c_str());
             if(extension != "bmp")
             {
-                textureVFlip(mData.getData(), width, height);
+                //textureVFlip(mData.getData(), width, height);
+                mData.flipImageVertical();
                 fprintf(stderr, "[Texture::loadFromFile] inverting scanlines.\n");
             }
         }
         
-        //GLuint type = (c==4) ? GL_RGBA : GL_RGB;
-        //glBindTexture(GL_TEXTURE_2D, mTexture);
-        //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
-	
-        //glGenerateMipmap(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
+    else {
+        return false;
+    }
+    
+    return true;
 }
 
 bool Texture::setFromData(const TextureData& data)
 {
     mIsDirty = true;
     mData = data;
+    return true;
 }
 
 TextureData& Texture::getDataRW()
@@ -199,12 +203,12 @@ bool Texture::operator==(const Texture& rhs) const
 
 int Texture::getWidth() const
 {
-    mData.getWidth();
+    return mData.getWidth();
 }
 
 int Texture::getHeight() const
 {
-    mData.getHeight();
+    return mData.getHeight();
 }
 
 unsigned int Texture::getObject()
@@ -245,7 +249,12 @@ void Texture::_updateImageData()
             case 2: texelType = GL_RG; break;
             case 3: texelType = GL_RGB; break;
             case 4: texelType = GL_RGBA; break;
-            default: fprintf(stderr, "Texture::_updateImageData] invalid channel count, ignoring data.\n"); mIsDirty = false; return; break;
+            default: 
+            {
+                fprintf(stderr, "[Texture::_updateImageData] invalid channel count, ignoring data.\n"); 
+                return; 
+                break;
+            }
         }
         
         GLenum dataType;
@@ -255,14 +264,19 @@ void Texture::_updateImageData()
             case TextureData::Texel_F32: dataType = GL_FLOAT; break;
             
             case TextureData::Texel_Invalid: // intentional fall-through
-            default: fprintf(stderr, "Texture::_updateImageData] invalid channel size, ignoring data.\n"); mIsDirty = false; return; break;
+            default: 
+            {
+                fprintf(stderr, "[Texture::_updateImageData] invalid channel size, ignoring data.\n"); 
+                return; 
+                break;
+            }
         }
         
         glTexImage2D(GL_TEXTURE_2D, 0, texelType, mData.getWidth(), mData.getHeight(), 0, texelType, dataType, mData.getData());
 	
         if(mGenerateMipmaps)
         {
-            fprintf(stderr, "[Texture::_updateImageData] generating mipmaps.\n", mTexture);
+            fprintf(stderr, "[Texture::_updateImageData] generating mipmaps.\n");
             glGenerateMipmap(GL_TEXTURE_2D);
         }
     }

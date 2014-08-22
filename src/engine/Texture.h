@@ -31,6 +31,8 @@ public:
     unsigned char* operator[](const unsigned int& index);
     unsigned char* operator()(const unsigned int& x, const unsigned int& y);
     
+    void flipImageVertical();
+    
 private:
     int mWidth;
     int mHeight;
