@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <GL/gl.h>
 
+#include "Logging.h"
 #include "stb_image.h"
 #include "MeshRenderer.h"
 #include "Camera.h"
@@ -19,10 +20,33 @@ static void error_callback(int error, const char* description)
     fputs(description, stderr);
 }
 
+std::shared_ptr<Texture> lightingTex;
+float theta = 0.f;
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
 	glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+    else if (key == GLFW_KEY_A)
+    {
+	Debug("a");
+	theta += 0.05f;
+	float* floats = (float*)lightingTex->getDataRW().getData();
+	floats[0] = 3.0f * cos(theta);
+	floats[1] = 3.0f * sin(theta);
+	lightingTex->dirty();
+    }
+    else if (key == GLFW_KEY_D)
+    {
+	Debug("d");
+	theta -= 0.05f;
+	float* floats = (float*)lightingTex->getDataRW().getData();
+	floats[0] = 3.0f * cos(theta);
+	floats[1] = 3.0f * sin(theta);
+	lightingTex->dirty();
+    }
 }
 
 int main(void)
@@ -77,12 +101,62 @@ int main(void)
     mesh->enableIndexedDrawing();
     mesh->addTriangles(verts, texCoords, emptyColorList, indexList);
 
+    // Create the lighting info
+    float lightInfo [] = { 3.0, 0.0, 0.0, 10.0, 0.1, 0.1, 0.7, 0.9 };
+    
+    TextureData lightingTexData(2, 1, 4, TextureData::Texel_F32, (const unsigned char*)lightInfo);
+    
+    lightingTex.reset(new Texture());
+    lightingTex->setFromData(lightingTexData);
+
     // Load up the texture
     glEnable(GL_TEXTURE_2D);
 
     Texture texture;
     texture.loadFromFile("data/crate.jpg");
 
+
+static const char* lightingVertexShader =
+	"#version 330\n"
+	"layout(location=0) in vec3 vertexIn;\n"
+	"layout(location=2) in vec2 texCoordIn;\n"
+	"out vec2 texCoordOut;\n"
+	"out vec3 position;\n"
+	"uniform mat4 projectionMat;\n"
+	"uniform mat4 viewMat;\n"
+	"void main() {\n"
+	"gl_Position = projectionMat * viewMat * vec4(vertexIn.xyz, 1.f);\n"
+	"position = vertexIn.xyz;\n"
+	"texCoordOut = texCoordIn;\n"
+	"}\n";
+
+static const char* lightingFragmentShader =
+	"#version 330\n"
+	"uniform sampler2D texSampler;\n"
+	"uniform sampler2D lightSampler;\n"
+	"in vec2 texCoordOut;\n"
+	"in vec3 position;\n"
+	"layout(location=0) out vec4 fragColor;\n"
+	"void main() {\n"
+	"   int numLights = 1;\n"
+	"   vec4 color = vec4(0.f, 0.f, 0.f, 0.f);\n"
+	"   for(int i=0; i<numLights; ++i) {\n"
+	"	vec4 lightPosInfo   = texelFetch(lightSampler, ivec2(i,0), 0);\n"
+	"	vec4 lightColorInfo = texelFetch(lightSampler, ivec2(i,1), 0);\n"
+	"	float intensity     = length(lightPosInfo.xyz - position);\n"
+	"	intensity = clamp( intensity, 0.0, 1.0 );\n"
+	"       color += intensity * vec4(lightColorInfo.xyz, 1.0);\n"
+	"   }\n"
+	"   color.w = clamp(color.w, 0., 0.94);\n"
+	//"   fragColor = vec4(texture2D(texSampler, texCoordOut).rgb,1.0f);\n"
+	"   fragColor = mix(vec4(texture2D(texSampler, texCoordOut).rgb,1.0f), color, color.w);\n"
+	"   //fragColor = vec4(texture(texSampler, texCoordOut).rgb,1.0f)+vec4(texCoordOut.rg, 1.0, 1.0f);\n"
+	"}";
+
+    br.setShaderText(Shader::Vertex, lightingVertexShader);
+    br.setShaderText(Shader::Fragment, lightingFragmentShader);
+
+    // set up camera
     float ratio;
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -90,8 +164,10 @@ int main(void)
     br.getCamera()->setOrthographic(-5, 5, -5, 5, -1, 1);
     
     Sampler sampler;
-    bool old = true;
-    int counter = 0;
+    Sampler lightingSampler;
+    
+    std::shared_ptr<Uniform> lightingUniform ( new Uniform( Uniform::Uniform_sampler2D, "lightSampler" ) );
+    br.addCustomUniform( lightingUniform );
 
     glClearColor(0., 0., 0., 1.);
     
@@ -109,6 +185,11 @@ int main(void)
 	texture.bind();
 	br.bindTexture(0);
 	sampler.bind(0);
+
+	glActiveTexture(GL_TEXTURE2);
+	lightingTex->bind();
+	lightingUniform->set(2);
+	lightingSampler.bind(2);
 	
 	mesh->draw();
 

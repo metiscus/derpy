@@ -243,7 +243,8 @@ void Texture::_updateImageData()
     if(mIsDirty)
     {
         mIsDirty = false;
-        Info("texture %d has dirty data, refreshing.", mTexture);
+        Debug("texture %d has dirty data, refreshing.", mTexture);
+        //Info("texture %d has dirty data, refreshing.", mTexture);
        
         glBindTexture(GL_TEXTURE_2D, mTexture);
         
