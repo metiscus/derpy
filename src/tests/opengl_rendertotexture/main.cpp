@@ -12,6 +12,8 @@
 #include "Mesh.h"
 #include "techniques/RenderToTexture.h"
 
+#include "Logging.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -27,7 +29,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 int main(void)
-{
+{   
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
 

@@ -7,6 +7,8 @@
 #include "Texture.h"
 #include "RenderToTexture.h"
 
+#include "Logging.h"
+
 // technique implemented from 
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 
@@ -14,12 +16,16 @@ RenderToTexture::RenderToTexture(int width, int height, TextureType type)
     : mTexture(new Texture())
     , mWidth(width)
     , mHeight(height)
-{
+{    
+    Debug("width=%d height=%d type=%d.", width, height, type);
+    
     glGenFramebuffers(1, &mFrameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
 
     if(type==Depth_16 || type==Depth_24)
     {
+        Debug("making a depth buffer.");
+        
         GLuint depthrenderbuffer;
         glGenRenderbuffers(1, &depthrenderbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
@@ -43,6 +49,7 @@ RenderToTexture::RenderToTexture(int width, int height, TextureType type)
             glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT24, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
         break;
     }
+    
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -53,7 +60,7 @@ RenderToTexture::RenderToTexture(int width, int height, TextureType type)
     
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-        fprintf(stderr, "[RenderToTexture::RenderToTexture()] failed to create the requested renderbuffer.\n");
+        Error("failed to create the requested renderbuffer.");
     }
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

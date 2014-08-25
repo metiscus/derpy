@@ -7,6 +7,7 @@
 
 #include <cstdio>
 
+#include "Logging.h"
 #include "Mesh.h"
 
 enum VertexAttribs {
@@ -34,7 +35,7 @@ void Mesh::_synchronizeDataBuffers()
 {
     if(mIsBufferDirty)
     {
-	fprintf(stderr, "[Mesh::_synchronizeDataBuffers] rebuilding VBO due to dirty buffer flag: %d.\n", mData.size());
+	Debug("rebuilding VBO due to dirty buffer flag: %d.", mData.size());
 	mIsBufferDirty = false;
 	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 	glBufferData(GL_ARRAY_BUFFER, mData.size() * sizeof(float), &mData[0], GL_DYNAMIC_DRAW);
@@ -52,6 +53,7 @@ void Mesh::draw()
 
     if(mUseIndexedDrawing)
     {
+	Info("using indexed drawing");
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mElementBuffer);
     }
     else
@@ -69,6 +71,7 @@ void Mesh::draw()
     glVertexAttribPointer(TexCoordAttr, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float)*3));
     if(mUseColor)
     {
+	Info("using color vertex attributes");
 	glEnableVertexAttribArray(ColorAttr);
 	glVertexAttribPointer(ColorAttr, 4, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(float)*5));
     }
@@ -114,7 +117,7 @@ void Mesh::addTriangles(const VertexList& verts, const TexCoordList& texcoords, 
 	numTriangles = indices.size() / 3;
 	if(3*numTriangles != indices.size())
 	{
-	    fprintf(stderr, "[Mesh::addTriangles] passed in index list not multiple of three.\n");
+	    Error("passed in index list not multiple of three.");
 	    isValidData = false;
 	}
     }
@@ -123,20 +126,20 @@ void Mesh::addTriangles(const VertexList& verts, const TexCoordList& texcoords, 
 	numTriangles = verts.size() / 3;
 	if(3*numTriangles != verts.size())
 	{
-	    fprintf(stderr, "[Mesh::addTriangles] passed in vertex list not multiple of three.\n");
+	    Error("passed in vertex list not multiple of three.");
 	    isValidData = false;
 	}
     }
 
     if(texcoords.size() != verts.size())
     {
-	fprintf(stderr, "[Mesh::addTriangles] passed in texture coordinate list that does not match.\n");
+	Error("passed in texture coordinate list that does not match.");
 	isValidData = false;
     }
 
     if((mUseColor && colors.size() != verts.size()) || (!mUseColor && colors.size()>0))
     {
-	fprintf(stderr, "[Mesh::addTriangles] passed in color coordinate list that does not match the number of verts.\n");
+	Error("passed in color coordinate list that does not match the number of verts.");
 	isValidData = false;
     }
 
@@ -156,20 +159,18 @@ void Mesh::addTriangles(const VertexList& verts, const TexCoordList& texcoords, 
 
 	for(unsigned int triangle=0; triangle<3*numTriangles; ++triangle)
 	{
-	    unsigned int dbgIdx = mData.size();
 	    mData.push_back(verts[triangle].x);
 	    mData.push_back(verts[triangle].y);
 	    mData.push_back(verts[triangle].z);
 	    mData.push_back(texcoords[triangle].x);
 	    mData.push_back(texcoords[triangle].y);
 
-#if DEBUG_VBO
-	    fprintf(stderr,"<%f %f %f> (%f, %f)\n", verts[triangle].x, verts[triangle].y, verts[triangle].z, texcoords[triangle].x, texcoords[triangle].y);
-	    for(int ii=0; ii<mData.size(); ++ii)
+
+	    Info("<%f %f %f> (%f, %f)", verts[triangle].x, verts[triangle].y, verts[triangle].z, texcoords[triangle].x, texcoords[triangle].y);
+	    for(unsigned int ii=0; ii<mData.size(); ++ii)
 	    {
-		fprintf(stderr, "%f\n", mData[ii]);
+		Info("%f", mData[ii]);
 	    }
-#endif
 
 	    if(mUseColor)
 	    {
@@ -189,7 +190,7 @@ void Mesh::addIndices(const IndexList& indices)
 	unsigned int numTriangles = indices.size() / 3;
 	if(3*numTriangles != indices.size())
 	{
-	    fprintf(stderr, "[Mesh::addIndices] passed in index list not multiple of three.\n");
+	    Error("passed in index list not multiple of three.");
 	}
 	else {
 	    mIsBufferDirty = true;
@@ -198,7 +199,7 @@ void Mesh::addIndices(const IndexList& indices)
 	}
     }    
     else {
-	fprintf(stderr, "[Mesh::addIndices] tried adding index data when not in indexed draw mode.\n");
+	Error("tried adding index data when not in indexed draw mode.");
     }
 }
 
@@ -232,6 +233,9 @@ bool Mesh::disableColor()
     mUseColor = false;
     mIsBufferDirty = true;
     ColorList emptyColorList;
+    
+    Debug("color attributes disabled.");
+    
     if(mUseIndexedDrawing)
     {
 	addTriangles(mVertsRaw, mTexCoordsRaw, emptyColorList, mIndicesRaw);
@@ -241,12 +245,15 @@ bool Mesh::disableColor()
 	IndexList emptyIndexList;
 	addTriangles(mVertsRaw, mTexCoordsRaw, emptyColorList, emptyIndexList);
     }
+    return true;
 }
 
 bool Mesh::enableColor()
 {
     mUseColor = true;
     mIsBufferDirty = true;
+
+    Debug("color attributes enabled.");
 
     if(mUseIndexedDrawing)
     {
@@ -257,16 +264,21 @@ bool Mesh::enableColor()
 	IndexList emptyIndexList;
 	addTriangles(mVertsRaw, mTexCoordsRaw, mColorsRaw, emptyIndexList);
     }
+    return true;
 }
 
 bool Mesh::enableIndexedDrawing()
 {
+    Debug("indexed drawing enabled.");
     mUseIndexedDrawing = true;
+    return true;
 }
 
 bool Mesh::disableIndexedDrawing()
 {
+    Debug("indexed drawing disabled.");
     mUseIndexedDrawing = false;
+    return true;
 }
 
 void Mesh::reset()

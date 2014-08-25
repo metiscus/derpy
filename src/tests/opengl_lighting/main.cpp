@@ -53,10 +53,10 @@ int main(void)
     // make a new mesh
     std::shared_ptr<Mesh> mesh (new Mesh());
     VertexList verts;
-    verts.push_back(glm::vec3( 0.0f, 0.0f, 0.0f));
-    verts.push_back(glm::vec3( 1.0f, 0.0f, 0.0f));
-    verts.push_back(glm::vec3( 1.0f, 1.0f, 0.0f));
-    verts.push_back(glm::vec3( 0.0f, 1.0f, 0.0f));
+    verts.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+    verts.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+    verts.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+    verts.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
 
     TexCoordList texCoords;
     texCoords.push_back(glm::vec2(0.0f, 0.0f));
@@ -65,12 +65,12 @@ int main(void)
     texCoords.push_back(glm::vec2(0.0f, 1.0f));
 
     IndexList indexList;
-    indexList.push_back( 0 );
-    indexList.push_back( 1 );
-    indexList.push_back( 2 );
-    indexList.push_back( 0 );
-    indexList.push_back( 2 );
-    indexList.push_back( 3 );
+    indexList.push_back(0);
+    indexList.push_back(1);
+    indexList.push_back(2);
+    indexList.push_back(0);
+    indexList.push_back(2);
+    indexList.push_back(3);
 
     ColorList emptyColorList;
     mesh->disableColor();

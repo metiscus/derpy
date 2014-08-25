@@ -7,6 +7,8 @@
 #include <cstring>
 #include <string>
 #include <vector>
+
+#include "Logging.h"
 #include "stb_image.h"
 #include "Texture.h"
 
@@ -28,6 +30,8 @@ TextureData::TextureData(int width, int height, int channels, TexelType type, co
     , mChannels(channels)
     , mType(type)
 {
+    Debug("width=%d height=%d channels=%d type=%d data=%p.", width, height, channels, type, data);
+    
     resize(width, height, channels, type, data);
 }
 
@@ -38,6 +42,8 @@ TextureData::~TextureData()
 
 void TextureData::resize(int width, int height, int channels, TexelType type, const unsigned char* data)
 {
+    Debug("width=%d height=%d channels=%d type=%d data=%p.", width, height, channels, type, data);
+    
     assert(width>0 && height>0 && channels>0 && data && type != TextureData::Texel_Invalid);
     mWidth = width;
     mHeight = height;
@@ -132,7 +138,7 @@ bool Texture::loadFromFile(const char* filename)
 {
     if(!filename)
     {
-        fprintf(stderr, "[Texture::loadFromFile] invalid filename\n");
+        Fatal("null filename.");
         return false;
     }
     
@@ -142,8 +148,8 @@ bool Texture::loadFromFile(const char* filename)
     {
         mIsDirty = true;
         
-        fprintf(stderr, "[Texture::loadFromFile] loaded %s (%d x %d) with %d channels.\n", filename, width, height, c);
-        fprintf(stderr, "[Texture::loadFromFile] forcing RGBA\n");
+        Debug("loaded %s (%d x %d) with %d channels.", filename, width, height, c);
+        Debug("forcing RGBA.");
         
         // copy data to internal buffer and release
         mData.resize(width, height, 4, TextureData::Texel_U8, loadedData);
@@ -155,12 +161,12 @@ bool Texture::loadFromFile(const char* filename)
         if(itr!=std::string::npos)
         {
             extension = extension.substr(itr + 1, extension.length()-itr);
-            fprintf(stderr, "[Texture::loadFromFile] file is of type %s\n", extension.c_str());
+            Debug("file is of type %s.", extension.c_str());
             if(extension != "bmp")
             {
                 //textureVFlip(mData.getData(), width, height);
                 mData.flipImageVertical();
-                fprintf(stderr, "[Texture::loadFromFile] inverting scanlines.\n");
+                Debug("inverting scanlines.");
             }
         }
         
@@ -237,7 +243,7 @@ void Texture::_updateImageData()
     if(mIsDirty)
     {
         mIsDirty = false;
-        fprintf(stderr, "[Texture::_updateImageData] texture %d has dirty data, refreshing.\n", mTexture);
+        Info("texture %d has dirty data, refreshing.", mTexture);
        
         glBindTexture(GL_TEXTURE_2D, mTexture);
         
@@ -251,7 +257,7 @@ void Texture::_updateImageData()
             case 4: texelType = GL_RGBA; break;
             default: 
             {
-                fprintf(stderr, "[Texture::_updateImageData] invalid channel count, ignoring data.\n"); 
+                Warning("invalid channel count, ignoring data."); 
                 return; 
                 break;
             }
@@ -266,7 +272,7 @@ void Texture::_updateImageData()
             case TextureData::Texel_Invalid: // intentional fall-through
             default: 
             {
-                fprintf(stderr, "[Texture::_updateImageData] invalid channel size, ignoring data.\n"); 
+                Warning("invalid channel size, ignoring data."); 
                 return; 
                 break;
             }
@@ -276,7 +282,7 @@ void Texture::_updateImageData()
 	
         if(mGenerateMipmaps)
         {
-            fprintf(stderr, "[Texture::_updateImageData] generating mipmaps.\n");
+            Info("generating mipmaps.");
             glGenerateMipmap(GL_TEXTURE_2D);
         }
     }

@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "Logging.h"
 #include "Program.h"
 #include "Shader.h"
 #include "Uniform.h"
@@ -49,7 +50,7 @@ bool Program::link()
         glGetProgramInfoLog(mProgram, log_length, NULL, log);
         // debug
         mLinkErrors = log;
-        fprintf(stderr, "%s", log);
+        Error("%s", log);
         free(log);
         return false;
     }
@@ -58,7 +59,7 @@ bool Program::link()
     for(unsigned int ii=0; ii<mUniforms.size(); ++ii)
     {
         mUniforms[ii]->mUniform = glGetUniformLocation(mProgram, mUniforms[ii]->mName.c_str());
-        fprintf(stderr, "[Program::link] Found %s at %d\n", mUniforms[ii]->mName.c_str(), mUniforms[ii]->mUniform);
+        Debug("Found %s at %d", mUniforms[ii]->mName.c_str(), mUniforms[ii]->mUniform);
     }
     
     return true;

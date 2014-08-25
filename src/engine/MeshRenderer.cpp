@@ -1,3 +1,4 @@
+#include "Logging.h"
 #include "MeshRenderer.h"
 #include "Camera.h"
 #include "Shader.h"
@@ -38,11 +39,11 @@ static const char* defaultFragmentShader =
 	"}";	
 
 MeshRenderer::MeshRenderer()
-    : mCamera(new Camera())
-    , mIsRendering(false)
-    , mIsDirty(true)
+    : mIsDirty(true)
+    , mIsRendering(false) 
+    , mCamera(new Camera())    
 {
-    mVertexShaderSource = defaultVertexShader;
+    mVertexShaderSource   = defaultVertexShader;
     mFragmentShaderSource = defaultFragmentShader;
 }
 
@@ -53,15 +54,32 @@ MeshRenderer::~MeshRenderer()
 
 void MeshRenderer::setShaderText( Shader::Type type, const std::string& text )
 {
-    
-    
+    switch(type)
+    {
+	case Shader::Vertex:
+	{
+	    mIsDirty = true;
+	    mVertexShaderSource = text;
+	    break;
+	}
+	case Shader::Fragment:
+	{
+	    mIsDirty = true;
+	    mFragmentShaderSource = text;
+	    break;
+	}
+	default:
+	{
+	    Warning("invalid type specified.");
+	}
+    }    
 }
 
 void MeshRenderer::begin()
 {
     if(mIsRendering)
     {
-	fprintf(stderr, "[MeshRenderer::begin] MeshRenderer::end() must be called before calling begin() again.\n");
+	Error("end() must be called before calling begin() a second time.");
     }
     
     if(mIsDirty)
@@ -81,7 +99,7 @@ void MeshRenderer::end()
     //\TODO: Implement cleaning up our state
     if(!mIsRendering)
     {
-	fprintf(stderr, "[MeshRenderer::end] MeshRenderer::begin() must be called before calling end().\n");
+	Error("begin() must be called before calling end() a second time.");
     }
     mIsRendering = false;
 }
@@ -98,7 +116,7 @@ void MeshRenderer::setCamera(std::shared_ptr<Camera> camera)
 
 void MeshRenderer::bindTexture(int id)
 {
-    mSamplerUniform->set(0);
+    mSamplerUniform->set(id);
 }
 
 void MeshRenderer::addCustomUniform(std::shared_ptr<Uniform> uniform)
@@ -114,14 +132,14 @@ void MeshRenderer::_buildShaderProgram()
     vertexShader->setText(mVertexShaderSource.c_str());
     if(!vertexShader->compile())
     {
-	fprintf(stderr, "[MeshRenderer::_buildShaderProgram] Shader compile error: %s\n", vertexShader->getCompileErrors().c_str());
+	Warning("Vertex shader compile error: %s", vertexShader->getCompileErrors().c_str());
     }
 
     std::shared_ptr<Shader> fragmentShader(new Shader(Shader::Fragment));
     fragmentShader->setText(mFragmentShaderSource.c_str());
     if(!fragmentShader->compile())
     {
-	fprintf(stderr, "[MeshRenderer::_buildShaderProgram] Shader compile error: %s\n", fragmentShader->getCompileErrors().c_str());
+	Warning("Fragment shader compile error: %s", fragmentShader->getCompileErrors().c_str());
     }
 
     mProjectionMatrixUniform.reset(new Uniform(Uniform::Uniform_mat4, "projectionMat"));
@@ -133,7 +151,7 @@ void MeshRenderer::_buildShaderProgram()
     mProgram->addUniform(mSamplerUniform);
     
     // 
-    for(int ii=0; ii<mCustomUniforms.size(); ++ii)
+    for(unsigned int ii=0; ii<mCustomUniforms.size(); ++ii)
     {
 	mProgram->addUniform(mCustomUniforms[ii]);
     }
@@ -143,27 +161,11 @@ void MeshRenderer::_buildShaderProgram()
     mProgram->addShader(fragmentShader);
     if(!mProgram->link())
     {
-	fprintf(stderr, "[MeshRenderer::_buildShaderProgram] Shader compile error: %s\n", mProgram->getLinkErrors().c_str());
+	Warning("Shader program link error: %s",  mProgram->getLinkErrors().c_str());
     }
 
     mProgram->use();
     mSamplerUniform->set(0);
 
     glBindFragDataLocation( mProgram->getProgram(), 0, "fragColor" );
-}
-
-static void show_info_log(
-    GLuint object,
-    PFNGLGETSHADERIVPROC glGet__iv,
-    PFNGLGETSHADERINFOLOGPROC glGet__InfoLog
-)
-{
-    GLint log_length;
-    char *log;
-
-    glGet__iv(object, GL_INFO_LOG_LENGTH, &log_length);
-    log = (char*)malloc(log_length);
-    glGet__InfoLog(object, log_length, NULL, log);
-    fprintf(stderr, "%s", log);
-    free(log);
 }
