@@ -15,6 +15,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+float width = 640;
+float height = 480;
+
 static void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
@@ -29,6 +32,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     {
 	glfwSetWindowShouldClose(window, GL_TRUE);
     }
+}
+
+static void cursor(GLFWwindow* window, double x, double y)
+{
+    float* floats = (float*)lightingTex->getDataRW().getData();
+    floats[16] = (x / width) * 20.0 - 10.0f;
+    floats[17] = ((height - y) / height) * 10.0 - 5.0f;
+    lightingTex->dirty();
 }
 
 void animate()
@@ -55,7 +66,8 @@ int main(void)
 
 
     glfwWindowHint( GLFW_DEPTH_BITS, 16 );
-    window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+    glfwWindowHint( GLFW_REFRESH_RATE, 60 );
+    window = glfwCreateWindow(width, height, "Simple example", NULL, NULL);
 
     if (!window)
     {
@@ -68,6 +80,7 @@ int main(void)
     glewInit();
 
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, cursor);
 
     MeshRenderer br;
 
@@ -121,10 +134,11 @@ int main(void)
     MeshRenderer mr2;
 
     // Create the lighting info
-    float lightInfo [] = { 3.0, 0.0, 0.0, 3.0, 0.7, 0.0, 0.0, 0,
-			   0.0, 6.0, 0.0, 1.0, 0.7, 0.7, 0.7, 0.9 };
+    float lightInfo [] = { 3.0, 0.0, 0.0, 3.0,   0.5, 0.0, 0.0, 0,
+			   0.0, 6.0, 0.0, 1.0,   0.4, 0.4, 0.4, 0.9,
+			   0.0, 0.0, 0.0, 2.0,   0.0, 0.7, 0.0, 0.9, };
     
-    TextureData lightingTexData(2, 2, 4, TextureData::Texel_F32, (const unsigned char*)lightInfo);
+    TextureData lightingTexData(2, 3, 4, TextureData::Texel_F32, (const unsigned char*)lightInfo);
     
     lightingTex.reset(new Texture());
     lightingTex->setFromData(lightingTexData);
@@ -167,7 +181,7 @@ static const char* lightingFragmentShader =
 	"in vec3 position;\n"
 	"layout(location=0) out vec4 fragColor;\n"
 	"void main() {\n"
-	"   int numLights = 2;\n"
+	"   int numLights = 3;\n"
 	"   vec4 color = vec4(0.f, 0.f, 0.f, 0.f);\n"
 	"   for(int i=0; i<numLights; ++i) {\n"
 	"	vec4 lightPosInfo   = texelFetch(lightSampler, ivec2(0,i), 0);\n"
@@ -194,9 +208,6 @@ static const char* lightingFragmentShader =
     br.getCamera()->setView(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
     br.getCamera()->setOrthographic(-10, 10,-5, 5, -1, 1);
     
-    mr2.getCamera()->setView(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
-    mr2.getCamera()->setOrthographic(-10, 10,-5, 5, -1, 1);
-    
     Sampler sampler;
     Sampler lightingSampler;
     
@@ -218,6 +229,8 @@ static const char* lightingFragmentShader =
 	glfwGetFramebufferSize(window, &width, &height);
 	ratio = width / (float) height;
 	glViewport(0, 0, width, height);
+	::height = height;
+	::width = width;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
