@@ -33,10 +33,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 void animate()
 {
-    theta -= 0.05f;
+    theta += 0.025f;
     float* floats = (float*)lightingTex->getDataRW().getData();
     floats[0] = 3.0f * cos(theta);
     floats[1] = 3.0f * sin(theta);
+    floats[8] = 10.0f * cos(2 * 3.14159265 - theta * 0.2);
+    floats[9] = 0.5;//5.0f * sin(2 * 3.14159265 - theta);
+    theta = fmod(theta, 1 / 0.2 * 2 * 3.14159265);
+
     lightingTex->dirty();
 }
 
@@ -117,8 +121,8 @@ int main(void)
     MeshRenderer mr2;
 
     // Create the lighting info
-    float lightInfo [] = { 3.0, 0.0, 0.0, 5.0, 0.7, 0.1, 0.1, 0,
-			   0.0, 3.0, 0.0, 8.0, 0.7, 0.7, 0.2, 0.9 };
+    float lightInfo [] = { 3.0, 0.0, 0.0, 3.0, 0.7, 0.0, 0.0, 0,
+			   0.0, 6.0, 0.0, 1.0, 0.7, 0.7, 0.7, 0.9 };
     
     TextureData lightingTexData(2, 2, 4, TextureData::Texel_F32, (const unsigned char*)lightInfo);
     
