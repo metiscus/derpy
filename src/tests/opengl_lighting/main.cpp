@@ -36,6 +36,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	float* floats = (float*)lightingTex->getDataRW().getData();
 	floats[0] = 3.0f * cos(theta);
 	floats[1] = 3.0f * sin(theta);
+	floats[2] = 3.0f * cos(theta + 3.14159);
+	floats[3] = 3.0f * sin(theta + 3.14159);	
 	lightingTex->dirty();
     }
     else if (key == GLFW_KEY_D)
@@ -45,6 +47,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	float* floats = (float*)lightingTex->getDataRW().getData();
 	floats[0] = 3.0f * cos(theta);
 	floats[1] = 3.0f * sin(theta);
+	floats[2] = 3.0f * cos(theta + 3.14159);
+	floats[3] = 3.0f * sin(theta + 3.14159);
 	lightingTex->dirty();
     }
 }
@@ -102,9 +106,10 @@ int main(void)
     mesh->addTriangles(verts, texCoords, emptyColorList, indexList);
 
     // Create the lighting info
-    float lightInfo [] = { 3.0, 0.0, 0.0, 10.0, 0.1, 0.1, 0.7, 0.9 };
+    float lightInfo [] = { 3.0, 0.0, 0.0, 10.0, 0.1, 0.1, 0.7, 0.9,
+			   0.0, 3.0, 0.0, 8.0, 0.7, 0.7, 0.2, 0.9 };
     
-    TextureData lightingTexData(2, 1, 4, TextureData::Texel_F32, (const unsigned char*)lightInfo);
+    TextureData lightingTexData(2, 2, 4, TextureData::Texel_F32, (const unsigned char*)lightInfo);
     
     lightingTex.reset(new Texture());
     lightingTex->setFromData(lightingTexData);
@@ -141,15 +146,15 @@ static const char* lightingFragmentShader =
 	"   int numLights = 1;\n"
 	"   vec4 color = vec4(0.f, 0.f, 0.f, 0.f);\n"
 	"   for(int i=0; i<numLights; ++i) {\n"
-	"	vec4 lightPosInfo   = texelFetch(lightSampler, ivec2(i,0), 0);\n"
-	"	vec4 lightColorInfo = texelFetch(lightSampler, ivec2(i,1), 0);\n"
+	"	vec4 lightPosInfo   = texelFetch(lightSampler, ivec2(0,i), 0);\n"
+	"	vec4 lightColorInfo = texelFetch(lightSampler, ivec2(1,i), 0);\n"
 	"	float intensity     = length(lightPosInfo.xyz - position);\n"
 	"	intensity = clamp( intensity, 0.0, 1.0 );\n"
-	"       color += intensity * vec4(lightColorInfo.xyz, 1.0);\n"
+	"       color += intensity * 0.8 * vec4(lightColorInfo.xyz, 1.0);\n"
 	"   }\n"
 	"   color.w = clamp(color.w, 0., 0.94);\n"
-	//"   fragColor = vec4(texture2D(texSampler, texCoordOut).rgb,1.0f);\n"
-	"   fragColor = mix(vec4(texture2D(texSampler, texCoordOut).rgb,1.0f), color, color.w);\n"
+	"   vec4 realColor = vec4(texture2D(texSampler, texCoordOut).rgb,1.0f);\n"
+	"   fragColor = mix(realColor, color, max( 0.5, color.w )) + 0.5 * realColor;\n"
 	"   //fragColor = vec4(texture(texSampler, texCoordOut).rgb,1.0f)+vec4(texCoordOut.rg, 1.0, 1.0f);\n"
 	"}";
 
