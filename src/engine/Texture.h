@@ -25,7 +25,7 @@ public:
     int getHeight() const;
     int getChannels() const;
     TexelType getType() const;
-    
+        
     unsigned char* getData();
     const unsigned char* getData() const;
     unsigned char* operator[](const unsigned int& index);
@@ -54,6 +54,15 @@ public:
     const TextureData& getDataRO() const;
     
     void bind();
+    
+    enum Parameter {
+        MinFilter,
+        MagFilter,
+        Wrap_S,
+        Wrap_T,
+    };
+    
+    void setParameter( Parameter param, unsigned int value );
     
     int getWidth() const;
     int getHeight() const;

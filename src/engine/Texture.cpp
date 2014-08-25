@@ -207,6 +207,25 @@ bool Texture::operator==(const Texture& rhs) const
     return mTexture == rhs.mTexture;
 }
 
+void Texture::setParameter( Texture::Parameter param, unsigned int value )
+{
+    GLenum glparam;
+    
+    switch( param )
+    {
+        case MinFilter: glparam = GL_TEXTURE_MIN_FILTER; break;
+        case MagFilter: glparam = GL_TEXTURE_MAG_FILTER; break;
+        case Wrap_S: glparam = GL_TEXTURE_WRAP_S; break;
+        case Wrap_T: glparam = GL_TEXTURE_WRAP_T; break;
+        default:
+            return;
+            break;
+    }
+    
+    bind();
+    glTexParameteriv(GL_TEXTURE_2D, glparam, (GLint*)&value);
+}
+
 int Texture::getWidth() const
 {
     return mData.getWidth();
@@ -243,8 +262,8 @@ void Texture::_updateImageData()
     if(mIsDirty)
     {
         mIsDirty = false;
-        Debug("texture %d has dirty data, refreshing.", mTexture);
-        //Info("texture %d has dirty data, refreshing.", mTexture);
+        //Debug("texture %d has dirty data, refreshing.", mTexture);
+        Info("texture %d has dirty data, refreshing.", mTexture);
        
         glBindTexture(GL_TEXTURE_2D, mTexture);
         
@@ -279,7 +298,16 @@ void Texture::_updateImageData()
             }
         }
         
-        glTexImage2D(GL_TEXTURE_2D, 0, texelType, mData.getWidth(), mData.getHeight(), 0, texelType, dataType, mData.getData());
+        if(mData.getType()!=TextureData::Texel_F32)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, texelType, mData.getWidth(), mData.getHeight(), 0, texelType, dataType, mData.getData());
+        }
+        else 
+        {
+            // support non-normalized textures
+            // possible to use GL_RGBA32F as well if you need more resolution
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mData.getWidth(), mData.getHeight(), 0, texelType, dataType, mData.getData());
+        }
 	
         if(mGenerateMipmaps)
         {

@@ -1,4 +1,5 @@
 #include "Logging.h"
+#include "Mesh.h"
 #include "MeshRenderer.h"
 #include "Camera.h"
 #include "Shader.h"
@@ -102,6 +103,15 @@ void MeshRenderer::end()
 	Error("begin() must be called before calling end() a second time.");
     }
     mIsRendering = false;
+}
+
+void MeshRenderer::draw(std::shared_ptr<Mesh> mesh)
+{
+    glm::mat4 origViewMatrix = mCamera->getViewMatrix();
+    glm::mat4 viewMatrix = origViewMatrix * mesh->getModelMatrix();
+    mViewMatrixUniform->set(viewMatrix);
+    mesh->draw();
+    mViewMatrixUniform->set(origViewMatrix);
 }
 
 std::shared_ptr<Camera> MeshRenderer::getCamera()

@@ -13,8 +13,8 @@ endif(OPENGL_FOUND)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 	# This enables valgrind to be happy
-	set(CMAKE_CXX_FLAGS_DEBUG "-DGLIBCXX_FORCE_NEW")
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++0x")
+	set(CMAKE_CXX_FLAGS_DEBUG "-DGLIBCXX_FORCE_NEW -g")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++0x -g")
 
 endif(CMAKE_COMPILER_IS_GNUCXX)
 

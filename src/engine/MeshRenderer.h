@@ -10,6 +10,7 @@
 class Program;
 class Uniform;
 class Camera;
+class Mesh;
 
 class MeshRenderer : public noncopyable
 {
@@ -21,6 +22,7 @@ public:
 	
 	void end();
 	
+	void draw(std::shared_ptr<Mesh> mesh);
 	
 	void bindTexture(int id);
 
