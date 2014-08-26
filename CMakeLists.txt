@@ -20,6 +20,7 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 include_directories(extern/glfw-3.0.4/include)
 include_directories(extern/glew-1.11.0/include)
+include_directories(extern/rapidxml-1.13)
 include_directories(extern/glm)
 add_subdirectory(extern)
 add_subdirectory(src)
