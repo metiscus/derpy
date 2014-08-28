@@ -3,6 +3,8 @@ file(COPY data/derp.png DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 file(COPY data/crate.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 file(COPY data/stonewall.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 file(COPY data/boards.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
+file(COPY data/map/dg_grounds32.gif DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data/map)
+file(COPY data/map/untitled.tmx DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data/map)
 
 #opengl_basic test
 add_executable(opengl_basic opengl_basic/main.cpp)
@@ -18,3 +20,8 @@ target_link_libraries(opengl_rendertotexture derpus glfw glew ${OPENGL_LIBRARIES
 add_executable(opengl_lighting opengl_lighting/main.cpp)
 add_dependencies(opengl_lighting derpus)
 target_link_libraries(opengl_lighting derpus glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
+
+#map_parse test
+add_executable(map_parse map_parse/main.cpp)
+add_dependencies(map_parse derpus)
+target_link_libraries(map_parse derpus glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})

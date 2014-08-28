@@ -1,4 +1,5 @@
 #include "Logging.h"
+#include <cassert>
 
 //! LogImpl will write the arguments to stderr
 void LogImpl(int level, const char* function, const char* format, ...)
@@ -6,7 +7,8 @@ void LogImpl(int level, const char* function, const char* format, ...)
     va_list args;
     va_start(args, format);
     
-    const char *levelTag [] = { "","(Fatal)","(Error)","(Warning)","(Debug)","(Info)" };
+    const char *levelTag [] = { "","(Fatal)","(Error)","(Warning)","(Debug)","(Info)", "(Trace)" };
+        
     if(level <= LOG_LEVEL)
     {
 #if defined(__GNUC__)

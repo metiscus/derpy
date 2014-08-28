@@ -15,13 +15,14 @@ typedef std::map<std::string, std::string> PropertyMap;
 class MapObject 
 {
 public:  
-    enum Type {
-        Rectangle,
-        Polygon,
-        PolyLine
+    enum ObjectType {
+        InvalidType,
+        RectangleType,
+        PolygonType,
+        PolyLineType,
     };
   
-    MapObject(Type type, const std::string& name, uint32_t x, uint32_t y);
+    MapObject(ObjectType type, uint32_t x, uint32_t y);
     virtual ~MapObject();
     
     uint32_t getX() const;
@@ -30,23 +31,26 @@ public:
     bool hasProperty(const std::string& name) const;
     std::string getProperty(const std::string& name) const;
     
-    static MapObject* load( rapidxml::xml_node<>* objectNode );
-    virtual void save( rapidxml::xml_node<>* node ) = 0;
+    static MapObject* load(rapidxml::xml_node<>* objectNode);
+    virtual void save(rapidxml::xml_node<>* node) = 0;
     
-    Type getType() const;
+    ObjectType getObjectType() const;
+    
+protected:
+    MapObject();
+    void setPosition(uint32_t x, uint32_t y);
     
 private:
-    std::string mName;
     uint32_t mX;
     uint32_t mY;
     PropertyMap mProperties;
-    Type mType;
+    ObjectType mObjectType;
 };
 
 class Rectangle : public MapObject
 {
 public:
-    Rectangle(const std::string& name, uint32_t x, uint32_t y, uint32_t w, uint32_t h);
+    Rectangle(uint32_t x, uint32_t y, uint32_t w, uint32_t h);
     virtual ~Rectangle();
     
     uint32_t getW() const;
@@ -57,34 +61,45 @@ public:
 private:
     uint32_t mWidth;
     uint32_t mHeight;
+
+    friend class MapObject;
+    
+    Rectangle();
+    void setSize(uint32_t width, uint32_t height);
 };
 
 class Polygon : public MapObject
 {
 public:
-    Polygon(const std::string& name, uint32_t x, uint32_t y, std::vector<glm::ivec3> points);
+    Polygon(uint32_t x, uint32_t y, std::vector<glm::ivec2> points);
     virtual ~Polygon();
     
-    std::vector<glm::ivec3> getPoints() const;
+    std::vector<glm::ivec2> getPoints() const;
 
     virtual void save( rapidxml::xml_node<>* node );
 
 private:
-    std::vector<glm::ivec3> mPoints;
+    std::vector<glm::ivec2> mPoints;
+    
+    friend class MapObject;
+    Polygon();
+    void setPoints(std::vector<glm::ivec3> points);
 };
 
 class PolyLine : public MapObject
 {
 public:
-    PolyLine(const std::string& name, uint32_t x, uint32_t y, std::vector<glm::ivec3> points);
+    PolyLine(uint32_t x, uint32_t y, std::vector<glm::ivec2> points);
     virtual ~PolyLine();
     
-    std::vector<glm::ivec3> getPoints() const;
+    std::vector<glm::ivec2> getPoints() const;
 
     virtual void save( rapidxml::xml_node<>* node );
 
 private:
-    std::vector<glm::ivec3> mPoints;
+    std::vector<glm::ivec2> mPoints;
+    
+    friend class MapObject;
 };
 
 #endif /* MAPOBJECT_H_ */

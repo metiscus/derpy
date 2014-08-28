@@ -25,9 +25,11 @@ void Layer::load( rapidxml::xml_node<>* layerNode )
     std::stringstream ss;
     ss << layerNode->first_attribute("width")->value();
     ss >> mWidth;
+    ss.clear();
     
     ss << layerNode->first_attribute("height")->value();
     ss >> mHeight;
+    ss.clear();
     
     Debug("layer %s (%dx%d).", mName.c_str(), mWidth, mHeight);
     

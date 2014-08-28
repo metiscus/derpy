@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "rapidxml.hpp"
+#include <rapidxml.hpp>
 
 typedef uint32_t TileId;
 
