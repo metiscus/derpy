@@ -60,7 +60,7 @@ void Tileset::load(rapidxml::xml_node<>* tsNode)
             ss.clear();
             
             
-            Info("Loaded tileset '%s' (%u x %u) <%s, %u, %u>.", mName.c_str(), mTileWidth, mTileHeight, mImage.filename.c_str(), mImage.width, mImage.height);
+            Trace("Loaded tileset '%s' (%u x %u) <%s, %u, %u>.", mName.c_str(), mTileWidth, mTileHeight, mImage.filename.c_str(), mImage.width, mImage.height);
         }
     }
 }
@@ -99,7 +99,7 @@ glm::vec2 Tileset::getTexCoords(uint32_t gid) const
         xCoord = xCoord % imageWidthInTiles;
         coords.x = (xCoord * mTileWidth) / (float)mImage.width;
         
-        Info("Tile %u => (%f, %f).", gid, coords.x, coords.y);
+        Trace("Tile %u => (%f, %f).", gid, coords.x, coords.y);
     }
     
     return coords;
