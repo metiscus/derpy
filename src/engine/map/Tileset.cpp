@@ -60,6 +60,8 @@ void Tileset::load(rapidxml::xml_node<>* tsNode)
             ss.clear();
             
             
+            mLastGid = mFirstGid + mImage.width / mTileWidth * ( mImage.height / mTileHeight );
+            
             Trace("Loaded tileset '%s' (%u x %u) <%s, %u, %u>.", mName.c_str(), mTileWidth, mTileHeight, mImage.filename.c_str(), mImage.width, mImage.height);
         }
     }
@@ -86,18 +88,17 @@ glm::vec2 Tileset::getTexCoords(uint32_t gid) const
     else 
     {
         // compute index
-        uint32_t xCoord = (gid - mFirstGid) * mTileWidth;        
+        uint32_t imageIndex = gid - mFirstGid;
         
-        // get texture params
-        uint32_t imageWidthInTiles  = mImage.width / mTileWidth;
+        // get texture params and xy
+        uint32_t imageWidthInTiles  = mImage.width / mTileWidth;        
+        uint32_t row    = imageIndex / imageWidthInTiles;
+        uint32_t column = imageIndex % imageWidthInTiles;
         
         // compute y coordinate
-        uint32_t yCoord = xCoord / imageWidthInTiles;
-        coords.y = (float)(yCoord * mTileHeight) / (float)mImage.height;
-        
-        // compute x coordinate
-        xCoord = xCoord % imageWidthInTiles;
-        coords.x = (xCoord * mTileWidth) / (float)mImage.width;
+        glm::vec2 step((float)mTileWidth/(float)mImage.width, (float)mTileHeight/(float)mImage.height);
+        coords.x = step.x * column;
+        coords.y = step.y * row;
         
         Trace("Tile %u => (%f, %f).", gid, coords.x, coords.y);
     }
@@ -107,6 +108,8 @@ glm::vec2 Tileset::getTexCoords(uint32_t gid) const
 
 glm::vec2 Tileset::getTexCoordStep() const
 {
+    Info("DDD %d %d %d %d", mTileWidth, mImage.width, mTileHeight, mImage.height);
+    Info("DDD %f %f", (float)mTileWidth/(float)mImage.width, (float)mTileHeight/(float)mImage.height);
     return glm::vec2 ((float)mTileWidth/(float)mImage.width, (float)mTileHeight/(float)mImage.height);
 }
 

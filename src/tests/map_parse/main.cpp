@@ -3,12 +3,15 @@
 #include <GL/gl.h>
 
 #include "map/Map.h"
+#include "map/Layer.h"
 #include "map/Tileset.h"
 
+#include "Camera.h"
 #include "Logging.h"
 #include "MeshRenderer.h"
 #include "Mesh.h"
 #include "Platform.h"
+#include "Sampler.h"
 #include "Texture.h"
 
 #include <map>
@@ -44,7 +47,6 @@ int main(void)
     glewInit();
 
     glViewport(0, 0, gWidth, gHeight);
-    glClearColor(0., 0., 0., 1.);
     
     map::Map map;
     if(!map.load(gDataPath + "untitled.tmx"))
@@ -57,6 +59,7 @@ int main(void)
     std::map<std::string, std::shared_ptr<Texture> > textureMap;
     map::Map::TilesetList tilesets = map.getTilesets();
     map::Map::TilesetList::iterator itr;
+    std::shared_ptr<Texture> theTexture;
     for(itr=tilesets.begin(); itr!=tilesets.end(); ++itr)
     {
         std::string textureFilename = (*itr)->getImage().filename;
@@ -70,42 +73,108 @@ int main(void)
                 Error("Unable to load a required texture. Exiting.");
                 exit(1);
             }
+            textureMap[textureFilename] = texture;
+            theTexture = texture;
         }
     }
     
+    
+    ///\Note: We assume 1 layer, with 1 texture right now
     MeshRenderer mapRenderer;
 
-    // Generate the geometry for the map
+    map::Map::LayerList layers = map.getLayers();
+    std::shared_ptr<map::Layer> layer = layers[0];
+    
     std::shared_ptr<Mesh> boxMesh (new Mesh());
     VertexList verts;
-    verts.push_back(glm::vec3(0.0f, 0.0f, -0.1f));
-    verts.push_back(glm::vec3(1.0f, 0.0f, -0.1f));
-    verts.push_back(glm::vec3(1.0f, 1.0f, -0.1f));
-    verts.push_back(glm::vec3(0.0f, 1.0f, -0.1f));
-
     TexCoordList texCoords;
-    texCoords.push_back(glm::vec2(0.0f, 0.0f));
-    texCoords.push_back(glm::vec2(1.0f, 0.0f));
-    texCoords.push_back(glm::vec2(1.0f, 1.0f));
-    texCoords.push_back(glm::vec2(0.0f, 1.0f));
-
+    
     IndexList indexList;
-    indexList.push_back(0);
-    indexList.push_back(1);
-    indexList.push_back(2);
-    indexList.push_back(0);
-    indexList.push_back(2);
-    indexList.push_back(3);
+    
+    glm::vec2 texOffset = tilesets[0]->getTexCoordStep();
+    
+    float texStepU = texOffset.x;
+    float texStepV = texOffset.y;
+    
+    glm::vec3 offset(0.f, (float)layer->getHeight(), 0.f);
+    int32_t vertCount = 0;
+    for(int32_t height=0; height<layer->getHeight(); ++height)
+    {
+        for(int32_t width=0; width<layer->getWidth(); ++width)
+        {
+            // Generate the geometry for the map            
+            uint32_t tileGid = layer->get(width, height);
+            
+            if(tilesets[0]->containsTile(tileGid))
+            {
+                glm::vec2 baseCoord = tilesets[0]->getTexCoords(tileGid-1);
+                
+                verts.push_back(offset + glm::vec3(0.0f, 0.0f, -0.1f));
+                verts.push_back(offset + glm::vec3(1.0f, 0.0f, -0.1f));
+                verts.push_back(offset + glm::vec3(1.0f, 1.0f, -0.1f));
+                verts.push_back(offset + glm::vec3(0.0f, 1.0f, -0.1f));
+                
+                texCoords.push_back(baseCoord + glm::vec2(0.0f, 0.0f));
+                texCoords.push_back(baseCoord + glm::vec2(texStepU, 0.0f));
+                texCoords.push_back(baseCoord + glm::vec2(texStepU, texStepV));
+                texCoords.push_back(baseCoord + glm::vec2(0.0f, texStepV));
+                
+                indexList.push_back(vertCount + 0);
+                indexList.push_back(vertCount + 1);
+                indexList.push_back(vertCount + 2);
+                indexList.push_back(vertCount + 0);
+                indexList.push_back(vertCount + 2);
+                indexList.push_back(vertCount + 3);
+                
+                vertCount += 4;
+            }
+            
+            offset.x += 1.f;
+        }
+        
+        offset.x  = 0;
+        offset.y -= 1.f;
+    }
 
     ColorList emptyColorList;
     boxMesh->disableColor();
     boxMesh->enableIndexedDrawing();
     boxMesh->addTriangles(verts, texCoords, emptyColorList, indexList);
     
-        
+    mapRenderer.getCamera()->setView(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
+    mapRenderer.getCamera()->setOrthographic(-50, 0, 0, 50, -1, 1);
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    glClearColor(0., 0., 0.112f, 1.);
+    glClearDepth(1.0);
+    
+    glEnable(GL_BLEND);
+    
+    theTexture->setParameter( Texture::Wrap_T, GL_REPEAT );
+    theTexture->setParameter( Texture::Wrap_S, GL_REPEAT );
+    theTexture->setParameter( Texture::MinFilter, GL_LINEAR_MIPMAP_NEAREST );
+    theTexture->setParameter( Texture::MagFilter, GL_LINEAR );
+    
+    Sampler sampler;
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     while (!glfwWindowShouldClose(gWindow))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+        mapRenderer.begin();
+
+        glActiveTexture(GL_TEXTURE0);
+        theTexture->bind();
+        mapRenderer.bindTexture(0);
+        sampler.bind(0);
+
+        mapRenderer.draw(boxMesh);
+        
+        mapRenderer.end();
 
         glfwSwapBuffers(gWindow);
         glfwPollEvents();

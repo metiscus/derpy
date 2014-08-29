@@ -35,7 +35,8 @@ static const char* defaultFragmentShader =
 	"in vec2 texCoordOut;\n"
 	"layout(location=0) out vec4 fragColor;\n"
 	"void main() {\n"
-	"   fragColor = vec4(texture2D(texSampler, texCoordOut).rgb,1.0f);\n"
+	"   fragColor = texture2D(texSampler, texCoordOut).rgba;\n"
+	//"   fragColor = vec4(texture2D(texSampler, texCoordOut).rgb,1.0f);\n"
 	"   //fragColor = vec4(texture(texSampler, texCoordOut).rgb,1.0f)+vec4(texCoordOut.rg, 1.0, 1.0f);\n"
 	"}";	
 
