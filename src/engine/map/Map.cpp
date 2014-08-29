@@ -2,7 +2,11 @@
 #include "Layer.h"
 #include "Logging.h"
 #include "ObjectGroup.h"
+#include "Tileset.h"
 #include <rapidxml_utils.hpp>
+
+namespace map
+{
 
 Map::Map()
 {
@@ -31,8 +35,12 @@ void Map::load(const std::string& filename)
     }
     
     // parse out tile sets
-    ///\TODO
-    ;
+    for(rapidxml::xml_node<> *itr = map->first_node("tileset"); itr; itr = itr->next_sibling("tileset"))
+    {
+        std::shared_ptr<Tileset> tsPtr(new Tileset());
+        tsPtr->load(itr);
+        mTilesets.push_back(tsPtr);
+    }
     
     // parse out layers
     for(rapidxml::xml_node<> *itr = map->first_node("layer"); itr; itr = itr->next_sibling("layer"))
@@ -63,4 +71,11 @@ Map::LayerList Map::getLayers()
 Map::ObjectGroupList Map::getObjectGroups()
 {
     return mObjectGroups;
+}
+
+Map::TilesetList Map::getTilesets()
+{
+    return mTilesets;
+}
+
 }

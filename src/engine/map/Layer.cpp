@@ -4,6 +4,9 @@
 #include <fstream>
 #include <sstream>
 
+namespace map 
+{
+
 Layer::Layer()
     : mWidth(0)
     , mHeight(0)
@@ -108,4 +111,6 @@ const TileId& Layer::get(uint32_t x, uint32_t y)
 void Layer::set(uint32_t x, uint32_t y, const TileId& id)
 {
     mData[x + y * mWidth] = id;
+}
+
 }

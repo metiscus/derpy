@@ -8,6 +8,9 @@
 #include <vector>
 #include <rapidxml.hpp>
 
+namespace map
+{
+
 class MapObject;
 
 class ObjectGroup
@@ -27,5 +30,7 @@ private:
     std::string mName;
     ObjectList mObjects;
 };
+
+}
 
 #endif /* OBJECTGROUP_H_ */

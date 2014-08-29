@@ -6,12 +6,17 @@
 #include <string>
 #include <vector>
 
+namespace map 
+{
+
 class Layer;
 class ObjectGroup;
+class Tileset;
 
 class Map
 {
 public:
+    typedef std::vector< std::shared_ptr<Tileset> > TilesetList;
     typedef std::vector< std::shared_ptr<Layer> > LayerList;
     typedef std::vector< std::shared_ptr<ObjectGroup> > ObjectGroupList;
     
@@ -22,10 +27,14 @@ public:
     
     LayerList getLayers();
     ObjectGroupList getObjectGroups();
+    TilesetList getTilesets();
     
 private:
     LayerList       mLayers;
     ObjectGroupList mObjectGroups;
+    TilesetList     mTilesets;
 };
+
+}
 
 #endif /* MAP_H_ */

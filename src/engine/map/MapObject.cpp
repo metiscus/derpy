@@ -5,6 +5,9 @@
 #include <cstring>
 #include <sstream>
 
+namespace map 
+{
+
 /// MapObject
 MapObject::MapObject(ObjectType type, uint32_t x, uint32_t y)
     : mX(x)
@@ -269,4 +272,6 @@ void PolyLine::save(rapidxml::xml_node<>* node)
 {
     MapObject::save(node);
     Fatal("unimplemented.");
+}
+
 }

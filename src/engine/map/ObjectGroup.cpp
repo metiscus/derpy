@@ -2,6 +2,9 @@
 #include "MapObject.h"
 #include "Logging.h"
 
+namespace map
+{
+
 ObjectGroup::ObjectGroup()
 {
     
@@ -43,4 +46,6 @@ ObjectGroup::ObjectList ObjectGroup::getObjects()
 size_t ObjectGroup::getObjectCount() const
 {
     return mObjects.size();
+}
+
 }

@@ -8,6 +8,9 @@
 
 #include <rapidxml.hpp>
 
+namespace map
+{
+
 typedef uint32_t TileId;
 
 class Layer
@@ -34,5 +37,7 @@ private:
     std::string mName;
     std::vector<TileId> mData;
 };
+
+}
 
 #endif /* LAYER_H_ */

@@ -10,6 +10,9 @@
 
 #include <glm/glm.hpp>
 
+namespace map
+{
+    
 typedef std::map<std::string, std::string> PropertyMap;
 
 class MapObject 
@@ -101,5 +104,7 @@ private:
     
     friend class MapObject;
 };
+
+}
 
 #endif /* MAPOBJECT_H_ */
