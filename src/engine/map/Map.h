@@ -23,7 +23,7 @@ public:
     Map();
     ~Map();
     
-    void load(const std::string& filename);
+    bool load(const std::string& filename);
     
     LayerList getLayers();
     ObjectGroupList getObjectGroups();

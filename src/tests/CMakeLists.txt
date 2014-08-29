@@ -3,7 +3,7 @@ file(COPY data/derp.png DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 file(COPY data/crate.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 file(COPY data/stonewall.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 file(COPY data/boards.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
-file(COPY data/map/dg_grounds32.gif DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data/map)
+file(COPY data/map/tilesheet.gif DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data/map)
 file(COPY data/map/untitled.tmx DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data/map)
 
 #opengl_basic test

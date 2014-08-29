@@ -173,6 +173,7 @@ bool Texture::loadFromFile(const char* filename)
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else {
+        Error("Error loading %s. (%s).", filename, stbi_failure_reason() );
         return false;
     }
     

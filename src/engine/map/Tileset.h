@@ -33,6 +33,7 @@ public:
     void getTileIdRange(uint32_t &low, uint32_t &high) const;
     bool containsTile(uint32_t gid) const;
     glm::vec2 getTexCoords(uint32_t gid) const;
+    glm::vec2 getTexCoordStep() const;
     Image getImage() const;
     
     std::string getName() const;

@@ -18,7 +18,7 @@ Map::~Map()
     ;
 }
 
-void Map::load(const std::string& filename)
+bool Map::load(const std::string& filename)
 {
     rapidxml::file<> mapfile(filename.c_str());
     
@@ -31,7 +31,7 @@ void Map::load(const std::string& filename)
     if(!map)
     {
         Error("%s did not contain a valid map.", filename.c_str());
-        return;
+        return false;
     }
     
     // parse out tile sets
@@ -61,6 +61,8 @@ void Map::load(const std::string& filename)
             mObjectGroups.push_back(objgrpPtr);
         }
     }
+    
+    return true;
 }
 
 Map::LayerList Map::getLayers()

@@ -105,6 +105,11 @@ glm::vec2 Tileset::getTexCoords(uint32_t gid) const
     return coords;
 }
 
+glm::vec2 Tileset::getTexCoordStep() const
+{
+    return glm::vec2 ((float)mTileWidth/(float)mImage.width, (float)mTileHeight/(float)mImage.height);
+}
+
 Tileset::Image Tileset::getImage() const
 {
     return mImage;
