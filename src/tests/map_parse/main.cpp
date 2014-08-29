@@ -107,7 +107,7 @@ int main(void)
             
             if(tilesets[0]->containsTile(tileGid))
             {
-                glm::vec2 baseCoord = tilesets[0]->getTexCoords(tileGid-1);
+                glm::vec2 baseCoord = tilesets[0]->getTexCoords(tileGid);
                 
                 verts.push_back(offset + glm::vec3(0.0f, 0.0f, -0.1f));
                 verts.push_back(offset + glm::vec3(1.0f, 0.0f, -0.1f));

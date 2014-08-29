@@ -97,8 +97,8 @@ glm::vec2 Tileset::getTexCoords(uint32_t gid) const
         
         // compute y coordinate
         glm::vec2 step((float)mTileWidth/(float)mImage.width, (float)mTileHeight/(float)mImage.height);
-        coords.x = step.x * column;
-        coords.y = step.y * row;
+        coords.x = 1. - step.x * column;
+        coords.y = 1. - step.y * row;
         
         Trace("Tile %u => (%f, %f).", gid, coords.x, coords.y);
     }
