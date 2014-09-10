@@ -6,7 +6,7 @@
 
 namespace map
 {
-    
+
 Tileset::Tileset()
     : mFirstGid(0)
     , mLastGid(0)
@@ -23,10 +23,10 @@ void Tileset::load(rapidxml::xml_node<>* tsNode)
     {
         Error("(null) node passed in.");
     }
-    else 
+    else
     {
         mName = tsNode->first_attribute("name")->value();
-        
+
         std::stringstream ss;
         ss<<tsNode->first_attribute("tilewidth")->value();
         ss>>mTileWidth;
@@ -40,17 +40,17 @@ void Tileset::load(rapidxml::xml_node<>* tsNode)
         ss<<tsNode->first_attribute("firstgid")->value();
         ss>>mFirstGid;
         ss.clear();
-        
+
         // get the image
         rapidxml::xml_node<> *imageNode = tsNode->first_node("image");
         if(!imageNode)
         {
             Error("Tileset does not include an image element.");
         }
-        else 
+        else
         {
             mImage.filename = imageNode->first_attribute("source")->value();
-         
+
             ss<<imageNode->first_attribute("width")->value();
             ss>>mImage.width;
             ss.clear();
@@ -58,10 +58,10 @@ void Tileset::load(rapidxml::xml_node<>* tsNode)
             ss<<imageNode->first_attribute("height")->value();
             ss>>mImage.height;
             ss.clear();
-            
-            
+
+
             mLastGid = mFirstGid + mImage.width / mTileWidth * ( mImage.height / mTileHeight );
-            
+
             Trace("Loaded tileset '%s' (%u x %u) <%s, %u, %u>.", mName.c_str(), mTileWidth, mTileHeight, mImage.filename.c_str(), mImage.width, mImage.height);
         }
     }
@@ -85,24 +85,24 @@ glm::vec2 Tileset::getTexCoords(uint32_t gid) const
     {
         Error("Requested gid %u is not part of tileset %s.", gid, mName.c_str());
     }
-    else 
+    else
     {
         // compute index
-        uint32_t imageIndex = gid - mFirstGid;
-        
+        const uint32_t imageIndex = gid - mFirstGid;
+
         // get texture params and xy
-        uint32_t imageWidthInTiles  = mImage.width / mTileWidth;        
-        uint32_t row    = imageIndex / imageWidthInTiles;
-        uint32_t column = imageIndex % imageWidthInTiles;
-        
+        const uint32_t imageWidthInTiles  = mImage.width / mTileWidth;
+        const uint32_t row    = imageIndex / imageWidthInTiles;
+        const uint32_t column = imageIndex % imageWidthInTiles;
+
         // compute y coordinate
         glm::vec2 step((float)mTileWidth/(float)mImage.width, (float)mTileHeight/(float)mImage.height);
-        coords.x = 1. - step.x * column;
-        coords.y = 1. - step.y * row;
-        
+        coords.x = step.x * column;
+        coords.y = 1. - step.y * (row + 1);
+
         Trace("Tile %u => (%f, %f).", gid, coords.x, coords.y);
     }
-    
+
     return coords;
 }
 

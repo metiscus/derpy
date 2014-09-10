@@ -53,7 +53,7 @@ void Mesh::draw()
 
     if(mUseIndexedDrawing)
     {
-	Info("using indexed drawing");
+	//Info("using indexed drawing");
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mElementBuffer);
     }
     else
@@ -165,7 +165,7 @@ void Mesh::addTriangles(const VertexList& verts, const TexCoordList& texcoords, 
 	    mData.push_back(texcoords[triangle].x);
 	    mData.push_back(texcoords[triangle].y);
 
-	    Info("<%f %f %f> (%f, %f)", verts[triangle].x, verts[triangle].y, verts[triangle].z, texcoords[triangle].x, texcoords[triangle].y);
+	    //Info("<%f %f %f> (%f, %f)", verts[triangle].x, verts[triangle].y, verts[triangle].z, texcoords[triangle].x, texcoords[triangle].y);
 	    //for(unsigned int ii=0; ii<mData.size(); ++ii)
 	    //{
 	    //    Info("%f", mData[ii]);
