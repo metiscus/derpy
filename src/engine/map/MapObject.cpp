@@ -159,6 +159,14 @@ MapObject* MapObject::load(rapidxml::xml_node<>* objectNode)
                     Trace("property: %s => %s", name.c_str(), value.c_str());
                 }
             }
+
+            // technically the type flag is also a property
+            char *typeCStr = objectNode->first_attribute("type")->value();
+            if(typeCStr)
+            {
+                Trace("property: %s => %s", "type", typeCStr);
+                ret->mProperties["type"] = typeCStr;
+            }
         }
     }
     return ret;

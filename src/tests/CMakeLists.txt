@@ -25,3 +25,8 @@ target_link_libraries(opengl_lighting derpus glfw glew ${OPENGL_LIBRARIES} ${GLF
 add_executable(map_parse map_parse/main.cpp)
 add_dependencies(map_parse derpus)
 target_link_libraries(map_parse derpus glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
+
+#map_physics test
+add_executable(map_physics map_physics/main.cpp)
+add_dependencies(map_physics derpus)
+target_link_libraries(map_physics derpus glfw glew Box2D ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
