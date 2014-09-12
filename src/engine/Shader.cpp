@@ -23,6 +23,11 @@ Shader::Shader(Type type)
             mShader = glCreateShader(GL_FRAGMENT_SHADER);
             break;
         }
+        case Geometry:
+        {
+            mShader = glCreateShader(GL_GEOMETRY_SHADER);
+            break;
+        }
         default:
         {
             assert(false);

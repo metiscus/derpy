@@ -6,6 +6,7 @@
 
 #include "Noncopyable.h"
 
+/// Encapsulates an OpenGL uniform
 class Uniform : public noncopyable
 {
 public:
@@ -20,6 +21,11 @@ public:
         Uniform_sampler2D
     };
     
+    /**
+        \brief creates a uniform with a type and name
+        \param type what type of uniform to create (you can not change this later)
+        \param name c-style string containing name of the uniform to create
+    */
     Uniform(Type type, const char* name);
     ~Uniform();
     
@@ -36,9 +42,9 @@ public:
     friend class Program;
     
 private:
-    Type mType;
-    std::string mName;
-    int mUniform;
+    Type mType;         //!< Type of the uniform
+    std::string mName;  //!< Name of the uniform
+    int mUniform;       //!< Raw OpenGL object
 
 };
 

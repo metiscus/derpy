@@ -62,6 +62,10 @@ bool Program::link()
         Debug("Found %s at %d", mUniforms[ii]->mName.c_str(), mUniforms[ii]->mUniform);
     }
     
+    //DEBUG: we shouldn't keep these around, so let's free them.
+    mUniforms.clear();
+    mShaders.clear();
+
     return true;
 }
 

@@ -141,8 +141,9 @@ int main(void)
         offset.y -= 1.f;
     }
 
-    /// physics
-
+    ///
+    /// begin physics
+    ///
     const char *ObjectTypeName [] = 
     {
         "InvalidObjectType",
@@ -177,6 +178,9 @@ int main(void)
                     Trace("Creating static body.");
                     boxDef.type = b2_staticBody;                    
                 }
+                else {
+                    Trace("Creating dynamic body.");
+                }
 
                 boxDef.position = b2Vec2(rectPtr->getX(), rectPtr->getY());
                 b2Body* boxBody = physics_world.CreateBody(&boxDef);
@@ -192,8 +196,9 @@ int main(void)
         }
     }
 
-    // rendering etc...
-
+    ///
+    /// rendering etc...
+    ///
     ColorList emptyColorList;
     boxMesh->disableColor();
     boxMesh->enableIndexedDrawing();
