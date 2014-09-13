@@ -5,7 +5,7 @@
 #include <cstring>
 #include <sstream>
 
-namespace map 
+namespace map
 {
 
 /// MapObject
@@ -32,125 +32,125 @@ uint32_t MapObject::getY() const
     return mY;
 }
 
-bool MapObject::hasProperty(const std::string& name) const
+bool MapObject::hasProperty(const std::string &name) const
 {
-    return mProperties.count(name)>0;
+    return mProperties.count(name) > 0;
 }
 
-std::string MapObject::getProperty(const std::string& name) const
+std::string MapObject::getProperty(const std::string &name) const
 {
     std::string ret;
-    
+
     PropertyMap::const_iterator itr;
     itr = mProperties.find(name);
-    if(itr != mProperties.end())
+    if (itr != mProperties.end())
     {
         ret = itr->second;
     }
-    
+
     return ret;
 }
 
-MapObject* MapObject::load(rapidxml::xml_node<>* objectNode)
+MapObject *MapObject::load(rapidxml::xml_node<> *objectNode)
 {
     MapObject *ret = NULL;
-    
-    if(!objectNode)
+
+    if (!objectNode)
     {
         Error("(null) node passed in.");
     }
-    else 
+    else
     {
         uint32_t x, y;
-        
+
         // base members
         std::stringstream ss;
-        ss<<objectNode->first_attribute("x")->value();
-        ss>>x;
+        ss << objectNode->first_attribute("x")->value();
+        ss >> x;
         ss.clear();
-        ss<<objectNode->first_attribute("y")->value();
-        ss>>y;
+        ss << objectNode->first_attribute("y")->value();
+        ss >> y;
         ss.clear();
-        
+
         Debug("MapObject <%d, %d>", x, y);
-        
+
         // fetch rectangle members since rectangle is a special snow-flake
-        rapidxml::xml_attribute<> *widthAtt  = objectNode->first_attribute("width");
+        rapidxml::xml_attribute<> *widthAtt = objectNode->first_attribute("width");
         rapidxml::xml_attribute<> *heightAtt = objectNode->first_attribute("height");
-        if(widthAtt&&heightAtt)
+        if (widthAtt && heightAtt)
         {
             uint32_t width, height;
 
-            ss<<widthAtt->value();
-            ss>>width;
+            ss << widthAtt->value();
+            ss >> width;
             ss.clear();
-            ss<<heightAtt->value();
-            ss>>height;
+            ss << heightAtt->value();
+            ss >> height;
             ss.clear();
-            
+
             ret = new Rectangle(x, y, width, height);
         }
         else // Handle the other non-special cases
         {
-            rapidxml::xml_node<> *polygonNode     = objectNode->first_node("polygon");
-            rapidxml::xml_node<> *polylineNode    = objectNode->first_node("polyline");
+            rapidxml::xml_node<> *polygonNode = objectNode->first_node("polygon");
+            rapidxml::xml_node<> *polylineNode = objectNode->first_node("polyline");
             rapidxml::xml_attribute<> *pointsNode = NULL;
-            
-            if(polygonNode)
+
+            if (polygonNode)
             {
                 // process polygon
                 pointsNode = polygonNode->first_attribute("points");
             }
-            else if(polylineNode)
+            else if (polylineNode)
             {
                 // process polyline
                 pointsNode = polylineNode->first_attribute("points");
             }
-            
+
             // parse out the points
-            if(pointsNode)
+            if (pointsNode)
             {
                 std::vector<glm::ivec2> points;
                 Tokenizer pairTok(" ");
                 std::string line;
                 line = pointsNode->value();
-                pairTok<<line;
+                pairTok << line;
                 Trace("Line %s", line.c_str());
-                while(pairTok.remaining() > 0)
+                while (pairTok.remaining() > 0)
                 {
                     glm::ivec2 vec;
                     std::string pair;
-                    
-                    pairTok>>pair;
+
+                    pairTok >> pair;
                     Trace("Pair %s", pair.c_str());
-                    
+
                     Tokenizer digitTok(",");
-                    digitTok<<pair;
-                    digitTok>>vec.x;
-                    digitTok>>vec.y;
-                    
+                    digitTok << pair;
+                    digitTok >> vec.x;
+                    digitTok >> vec.y;
+
                     points.push_back(vec);
                 }
-                
-                if(polygonNode)
+
+                if (polygonNode)
                 {
                     ret = new Polygon(x, y, points);
                 }
-                else if(polylineNode)
+                else if (polylineNode)
                 {
                     ret = new PolyLine(x, y, points);
                 }
             }
         }
-        
-        
-        if(ret)
+
+        if (ret)
         {
             // parse all properties
             rapidxml::xml_node<> *propertiesNode = objectNode->first_node("properties");
-            if(propertiesNode)
+            if (propertiesNode)
             {
-                for(rapidxml::xml_node<> *itr = propertiesNode->first_node("property"); itr; itr = itr->next_sibling("property"))
+                for (rapidxml::xml_node<> *itr = propertiesNode->first_node("property");
+                     itr; itr = itr->next_sibling("property"))
                 {
                     // fetch rectangle members since rectangle is a special snow-flake
                     std::string name = itr->first_attribute("name")->value();
@@ -162,7 +162,7 @@ MapObject* MapObject::load(rapidxml::xml_node<>* objectNode)
 
             // technically the type flag is also a property
             char *typeCStr = objectNode->first_attribute("type")->value();
-            if(typeCStr)
+            if (typeCStr)
             {
                 Trace("property: %s => %s", "type", typeCStr);
                 ret->mProperties["type"] = typeCStr;
@@ -172,7 +172,7 @@ MapObject* MapObject::load(rapidxml::xml_node<>* objectNode)
     return ret;
 }
 
-void MapObject::save(rapidxml::xml_node<>* node)
+void MapObject::save(rapidxml::xml_node<> *node)
 {
     Fatal("unimplemented.");
 }
@@ -220,7 +220,7 @@ uint32_t Rectangle::getH() const
     return mHeight;
 }
 
-void Rectangle::save( rapidxml::xml_node<>* node )
+void Rectangle::save(rapidxml::xml_node<> *node)
 {
     MapObject::save(node);
     Fatal("unimplemented.");
@@ -232,10 +232,10 @@ Polygon::Polygon(uint32_t x, uint32_t y, std::vector<glm::ivec2> points)
     , mPoints(points)
 {
     Debug("Polygon <%d, %d>", x, y);
-    for(size_t ii=0; ii<points.size(); ++ii)
+    for (size_t ii = 0; ii < points.size(); ++ii)
     {
         Trace("\t(%d, %d)", points[ii].x, points[ii].y);
-    }    
+    }
 }
 
 Polygon::~Polygon()
@@ -248,7 +248,7 @@ std::vector<glm::ivec2> Polygon::getPoints() const
     return mPoints;
 }
 
-void Polygon::save(rapidxml::xml_node<>* node)
+void Polygon::save(rapidxml::xml_node<> *node)
 {
     MapObject::save(node);
     Fatal("unimplemented.");
@@ -260,7 +260,7 @@ PolyLine::PolyLine(uint32_t x, uint32_t y, std::vector<glm::ivec2> points)
     , mPoints(points)
 {
     Debug("PolyLine <%d, %d>", x, y);
-    for(size_t ii=0; ii<points.size(); ++ii)
+    for (size_t ii = 0; ii < points.size(); ++ii)
     {
         Trace("\t(%d, %d)", points[ii].x, points[ii].y);
     }
@@ -270,16 +270,15 @@ PolyLine::~PolyLine()
 {
     ;
 }
-    
+
 std::vector<glm::ivec2> PolyLine::getPoints() const
 {
     return mPoints;
 }
 
-void PolyLine::save(rapidxml::xml_node<>* node)
+void PolyLine::save(rapidxml::xml_node<> *node)
 {
     MapObject::save(node);
     Fatal("unimplemented.");
 }
-
 }

@@ -2,39 +2,39 @@
 
 #include <sstream>
 
-Tokenizer::Tokenizer(const std::string& delimiters)
+Tokenizer::Tokenizer(const std::string &delimiters)
     : mDelimiters(delimiters)
     , mInputItr(0)
 {
     ;
 }
 
-Tokenizer& Tokenizer::operator<<(std::string& lhs)
+Tokenizer &Tokenizer::operator<<(std::string &lhs)
 {
     mInput += lhs;
     return *this;
 }
 
-Tokenizer& Tokenizer::operator>>(std::string& lhs)
+Tokenizer &Tokenizer::operator>>(std::string &lhs)
 {
     const size_t inputLength = mInput.length();
-    for( ; mInputItr<inputLength; ++mInputItr )
+    for (; mInputItr < inputLength; ++mInputItr)
     {
-        for(size_t ii=0; ii<mDelimiters.length(); ++ii)
+        for (size_t ii = 0; ii < mDelimiters.length(); ++ii)
         {
-            if(mInput[mInputItr]==mDelimiters[ii])
+            if (mInput[mInputItr] == mDelimiters[ii])
             {
                 ++mInputItr;
                 return *this;
             }
         }
-        
-        lhs += mInput[mInputItr];        
+
+        lhs += mInput[mInputItr];
     }
     return *this;
 }
 
-void Tokenizer::setDelimiters(const std::string& delimiters)
+void Tokenizer::setDelimiters(const std::string &delimiters)
 {
     mDelimiters = delimiters;
 }

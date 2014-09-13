@@ -11,27 +11,27 @@
 
 Shader::Shader(Type type)
 {
-    switch( type )
+    switch (type)
     {
-        case Vertex:
-        {
-            mShader = glCreateShader(GL_VERTEX_SHADER);
-            break;
-        }
-        case Fragment:
-        {
-            mShader = glCreateShader(GL_FRAGMENT_SHADER);
-            break;
-        }
-        case Geometry:
-        {
-            mShader = glCreateShader(GL_GEOMETRY_SHADER);
-            break;
-        }
-        default:
-        {
-            assert(false);
-        }
+    case Vertex:
+    {
+        mShader = glCreateShader(GL_VERTEX_SHADER);
+        break;
+    }
+    case Fragment:
+    {
+        mShader = glCreateShader(GL_FRAGMENT_SHADER);
+        break;
+    }
+    case Geometry:
+    {
+        mShader = glCreateShader(GL_GEOMETRY_SHADER);
+        break;
+    }
+    default:
+    {
+        assert(false);
+    }
     }
 }
 
@@ -41,12 +41,12 @@ Shader::~Shader()
     glDeleteShader(mShader);
 }
 
-void Shader::loadFile( const char* filename )
+void Shader::loadFile(const char *filename)
 {
     std::string line;
-    std::ifstream infile( filename );
-    
-    while(infile.is_open() && !infile.eof())
+    std::ifstream infile(filename);
+
+    while (infile.is_open() && !infile.eof())
     {
         std::getline(infile, line);
         mShaderText += line + "\n";
@@ -54,7 +54,7 @@ void Shader::loadFile( const char* filename )
     infile.close();
 }
 
-void Shader::setText( const char* text )
+void Shader::setText(const char *text)
 {
     mShaderText = text;
 }
@@ -65,25 +65,25 @@ bool Shader::compile()
     char *shaderSource = strdup(mShaderText.c_str());
     glShaderSource(mShader, 1, &shaderSource, NULL);
     glCompileShader(mShader);
-    
+
     GLint shader_ok;
     glGetShaderiv(mShader, GL_COMPILE_STATUS, &shader_ok);
-    if (!shader_ok) 
+    if (!shader_ok)
     {
         GLint log_length;
         char *log;
         glGetShaderiv(mShader, GL_INFO_LOG_LENGTH, &log_length);
-        log = (char*)malloc(log_length);
+        log = (char *)malloc(log_length);
         glGetShaderInfoLog(mShader, log_length, NULL, log);
         // debug
         mCompileErrors = log;
         fprintf(stderr, "%s", log);
         free(log);
-        
+
         ret = false;
     }
     free(shaderSource);
-    
+
     return ret;
 }
 
@@ -92,7 +92,7 @@ unsigned int Shader::get()
     return mShader;
 }
 
-const std::string& Shader::getCompileErrors()
+const std::string &Shader::getCompileErrors()
 {
     return mCompileErrors;
 }

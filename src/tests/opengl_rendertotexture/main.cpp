@@ -17,32 +17,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static void error_callback(int error, const char* description)
+static void error_callback(int error, const char *description)
 {
     fputs(description, stderr);
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                         int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-	glfwSetWindowShouldClose(window, GL_TRUE);
+        glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
 int main(void)
-{   
-    GLFWwindow* window;
+{
+    GLFWwindow *window;
     glfwSetErrorCallback(error_callback);
 
-    if (!glfwInit()) {
-	exit(EXIT_FAILURE);
+    if (!glfwInit())
+    {
+        exit(EXIT_FAILURE);
     }
 
     window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
 
     if (!window)
     {
-	glfwTerminate();
-	exit(EXIT_FAILURE);
+        glfwTerminate();
+        exit(EXIT_FAILURE);
     }
 
     glfwMakeContextCurrent(window);
@@ -54,12 +56,12 @@ int main(void)
     MeshRenderer br;
 
     // make a new mesh
-    std::shared_ptr<Mesh> mesh (new Mesh());
+    std::shared_ptr<Mesh> mesh(new Mesh());
     VertexList verts;
-    verts.push_back(glm::vec3( 0.0f, 0.0f, 0.0f));
-    verts.push_back(glm::vec3( 1.0f, 0.0f, 0.0f));
-    verts.push_back(glm::vec3( 1.0f, 1.0f, 0.0f));
-    verts.push_back(glm::vec3( 0.0f, 1.0f, 0.0f));
+    verts.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+    verts.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+    verts.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+    verts.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
 
     TexCoordList texCoords;
     texCoords.push_back(glm::vec2(0.0f, 0.0f));
@@ -68,12 +70,12 @@ int main(void)
     texCoords.push_back(glm::vec2(0.0f, 1.0f));
 
     IndexList indexList;
-    indexList.push_back( 0 );
-    indexList.push_back( 1 );
-    indexList.push_back( 2 );
-    indexList.push_back( 0 );
-    indexList.push_back( 2 );
-    indexList.push_back( 3 );
+    indexList.push_back(0);
+    indexList.push_back(1);
+    indexList.push_back(2);
+    indexList.push_back(0);
+    indexList.push_back(2);
+    indexList.push_back(3);
 
     ColorList emptyColorList;
     mesh->disableColor();
@@ -89,21 +91,21 @@ int main(void)
     float ratio;
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
-    ratio = width / (float) height;
+    ratio = width / (float)height;
     br.getCamera()->setOrthographic(-1, 1, -1, 1, -1, 1);
-    
+
     Sampler sampler;
     bool old = true;
     int counter = 0;
 
     glClearColor(0., 0., 0., 1.);
-    
+
     // prerender begin
     RenderToTexture rtt(256, 256, RenderToTexture::Color_RGB);
     rtt.begin();
-    
+
     glfwGetFramebufferSize(window, &width, &height);
-    ratio = width / (float) height;
+    ratio = width / (float)height;
     glViewport(0, 0, 256, 256);
 
     glClear(GL_COLOR_BUFFER_BIT);
@@ -114,36 +116,35 @@ int main(void)
     texture.bind();
     br.bindTexture(0);
     sampler.bind(0);
-    
+
     mesh->draw();
 
     br.end();
     rtt.end();
     // prerender end
-    
-    
+
     while (!glfwWindowShouldClose(window))
     {
-	glfwGetFramebufferSize(window, &width, &height);
-	ratio = width / (float) height;
-	glViewport(0, 0, width, height);
+        glfwGetFramebufferSize(window, &width, &height);
+        ratio = width / (float)height;
+        glViewport(0, 0, width, height);
 
-	glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-	br.begin();
+        br.begin();
 
-	glActiveTexture(GL_TEXTURE0);
-	//texture.bind();
-	rtt.getTexture()->bind();
-	br.bindTexture(0);
-	sampler.bind(0);
-	
-	mesh->draw();
+        glActiveTexture(GL_TEXTURE0);
+        // texture.bind();
+        rtt.getTexture()->bind();
+        br.bindTexture(0);
+        sampler.bind(0);
 
-	br.end();
+        mesh->draw();
 
-	glfwSwapBuffers(window);
-	glfwPollEvents();
+        br.end();
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
     glfwDestroyWindow(window);
     glfwTerminate();

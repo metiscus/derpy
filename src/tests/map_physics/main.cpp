@@ -23,15 +23,17 @@
 
 int32_t gWidth = 640;
 int32_t gHeight = 480;
-GLFWwindow* gWindow = NULL;
+GLFWwindow *gWindow = NULL;
 
 const std::string gDataPath = "data/map/";
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                         int mods);
 
 int main(void)
 {
-    if (!glfwInit()) {
+    if (!glfwInit())
+    {
         return 1;
     }
 
@@ -53,26 +55,26 @@ int main(void)
     glViewport(0, 0, gWidth, gHeight);
 
     map::Map map;
-    if(!map.load(gDataPath + "untitled.tmx"))
+    if (!map.load(gDataPath + "untitled.tmx"))
     {
         Error("Unable to load map. Exiting.");
         exit(1);
     }
 
     // Load required textures for the map
-    std::map<std::string, std::shared_ptr<Texture> > textureMap;
+    std::map<std::string, std::shared_ptr<Texture>> textureMap;
     map::Map::TilesetList tilesets = map.getTilesets();
     map::Map::TilesetList::iterator itr;
     std::shared_ptr<Texture> theTexture;
-    for(itr=tilesets.begin(); itr!=tilesets.end(); ++itr)
+    for (itr = tilesets.begin(); itr != tilesets.end(); ++itr)
     {
         std::string textureFilename = (*itr)->getImage().filename;
 
-        if(textureMap.count(textureFilename)==0)
+        if (textureMap.count(textureFilename) == 0)
         {
             Debug("Loading texture %s.", (gDataPath + textureFilename).c_str());
-            std::shared_ptr<Texture> texture ( new Texture() );
-            if(!texture->loadFromFile((gDataPath + textureFilename).c_str()))
+            std::shared_ptr<Texture> texture(new Texture());
+            if (!texture->loadFromFile((gDataPath + textureFilename).c_str()))
             {
                 Error("Unable to load a required texture. Exiting.");
                 exit(1);
@@ -88,7 +90,7 @@ int main(void)
     map::Map::LayerList layers = map.getLayers();
     std::shared_ptr<map::Layer> layer = layers[0];
 
-    std::shared_ptr<Mesh> boxMesh (new Mesh());
+    std::shared_ptr<Mesh> boxMesh(new Mesh());
     VertexList verts;
     TexCoordList texCoords;
 
@@ -101,16 +103,16 @@ int main(void)
 
     glm::vec3 offset((float)layer->getHeight(), (float)layer->getHeight(), 0.f);
     int32_t vertCount = 0;
-    for(uint32_t height=0; height<layer->getHeight(); ++height)
+    for (uint32_t height = 0; height < layer->getHeight(); ++height)
     {
-        for(uint32_t width=0; width<layer->getWidth(); ++width)
+        for (uint32_t width = 0; width < layer->getWidth(); ++width)
         {
             // Generate the geometry for the map
             const uint32_t tileGid = layer->get(width, height);
 
             Info("(%d, %d) : %d", width, height, tileGid);
 
-            if(tilesets[0]->containsTile(tileGid))
+            if (tilesets[0]->containsTile(tileGid))
             {
                 glm::vec2 baseCoord = tilesets[0]->getTexCoords(tileGid);
 
@@ -119,10 +121,10 @@ int main(void)
                 verts.push_back(offset + glm::vec3(1.0f, 1.0f, 0.1f));
                 verts.push_back(offset + glm::vec3(0.0f, 1.0f, 0.1f));
 
-                texCoords.push_back(baseCoord + glm::vec2(0.0f,     0.0f));
+                texCoords.push_back(baseCoord + glm::vec2(0.0f, 0.0f));
                 texCoords.push_back(baseCoord + glm::vec2(texStepU, 0.0f));
                 texCoords.push_back(baseCoord + glm::vec2(texStepU, texStepV));
-                texCoords.push_back(baseCoord + glm::vec2(0.0f,     texStepV));
+                texCoords.push_back(baseCoord + glm::vec2(0.0f, texStepV));
 
                 indexList.push_back(vertCount + 0);
                 indexList.push_back(vertCount + 1);
@@ -137,53 +139,49 @@ int main(void)
             offset.x -= 1.f;
         }
 
-        offset.x  = (float)layer->getHeight();
+        offset.x = (float)layer->getHeight();
         offset.y -= 1.f;
     }
 
     ///
     /// begin physics
     ///
-    const char *ObjectTypeName [] = 
-    {
-        "InvalidObjectType",
-        "RectangleObjectType",
-        "PolygonObjectType",
-        "PolylineObjectType"
-    };
+    const char *ObjectTypeName[] = { "InvalidObjectType", "RectangleObjectType",
+                                     "PolygonObjectType", "PolylineObjectType" };
 
     b2Vec2 gravity(0.f, -10.f);
     b2World physics_world(gravity);
 
-    std::vector<b2Body* > physicsBodies;
+    std::vector<b2Body *> physicsBodies;
 
     map::Map::ObjectGroupList objectGroups = map.getObjectGroups();
     map::Map::ObjectGroupList::iterator grpItr;
-    for(grpItr=objectGroups.begin(); grpItr!=objectGroups.end(); ++grpItr)
+    for (grpItr = objectGroups.begin(); grpItr != objectGroups.end(); ++grpItr)
     {
         std::shared_ptr<map::ObjectGroup> objects(*(grpItr));
         map::ObjectGroup::ObjectList objectList = objects->getObjects();
         map::ObjectGroup::ObjectList::iterator objItr;
-        for(objItr=objectList.begin(); objItr!=objectList.end(); ++objItr)
+        for (objItr = objectList.begin(); objItr != objectList.end(); ++objItr)
         {
             Trace("object %s\n", ObjectTypeName[(*objItr)->getObjectType()]);
-            
-            if((*objItr)->getObjectType() == 1)
+
+            if ((*objItr)->getObjectType() == 1)
             {
-                map::Rectangle *rectPtr = dynamic_cast<map::Rectangle*>((*objItr).get());
+                map::Rectangle *rectPtr = dynamic_cast<map::Rectangle *>((*objItr).get());
 
                 b2BodyDef boxDef;
-                if( rectPtr->hasProperty("type") && rectPtr->getProperty("type") == "Terrain" )
+                if (rectPtr->hasProperty("type") && rectPtr->getProperty("type") == "Terrain")
                 {
                     Trace("Creating static body.");
-                    boxDef.type = b2_staticBody;                    
+                    boxDef.type = b2_staticBody;
                 }
-                else {
+                else
+                {
                     Trace("Creating dynamic body.");
                 }
 
                 boxDef.position = b2Vec2(rectPtr->getX(), rectPtr->getY());
-                b2Body* boxBody = physics_world.CreateBody(&boxDef);
+                b2Body *boxBody = physics_world.CreateBody(&boxDef);
                 physicsBodies.push_back(boxBody);
 
                 b2PolygonShape boxShape;
@@ -191,7 +189,6 @@ int main(void)
                 boxBody->CreateFixture(&boxShape, 0.0f);
 
                 // debug properties
-
             }
         }
     }
@@ -204,7 +201,9 @@ int main(void)
     boxMesh->enableIndexedDrawing();
     boxMesh->addTriangles(verts, texCoords, emptyColorList, indexList);
 
-    mapRenderer.getCamera()->setView(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));
+    mapRenderer.getCamera()->setView(glm::vec3(0.0, 0.0, 0.0),
+                                     glm::vec3(0.0, 0.0, 1.0),
+                                     glm::vec3(0.0, 1.0, 0.0));
     mapRenderer.getCamera()->setOrthographic(-50, 0, 0, 50, -1, 1);
 
     glEnable(GL_DEPTH_TEST);
@@ -214,10 +213,10 @@ int main(void)
 
     glEnable(GL_BLEND);
 
-    theTexture->setParameter( Texture::Wrap_T, GL_REPEAT );
-    theTexture->setParameter( Texture::Wrap_S, GL_REPEAT );
-    theTexture->setParameter( Texture::MinFilter, GL_LINEAR_MIPMAP_NEAREST );
-    theTexture->setParameter( Texture::MagFilter, GL_LINEAR );
+    theTexture->setParameter(Texture::Wrap_T, GL_REPEAT);
+    theTexture->setParameter(Texture::Wrap_S, GL_REPEAT);
+    theTexture->setParameter(Texture::MinFilter, GL_LINEAR_MIPMAP_NEAREST);
+    theTexture->setParameter(Texture::MagFilter, GL_LINEAR);
 
     Sampler sampler;
 
@@ -226,7 +225,7 @@ int main(void)
 
     while (!glfwWindowShouldClose(gWindow))
     {
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         mapRenderer.begin();
 
@@ -239,7 +238,6 @@ int main(void)
 
         mapRenderer.end();
 
-
         physics_world.Step(1.0f / 60.0f, 6, 2);
 
         glfwSwapBuffers(gWindow);
@@ -251,7 +249,8 @@ int main(void)
     return 0;
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                         int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {

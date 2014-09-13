@@ -16,10 +16,9 @@ Sampler::~Sampler()
 {
     glDeleteSamplers(1, &mSampler);
 }
-    
+
 void Sampler::bind(int unit)
 {
     glBindSampler(unit, mSampler);
     mUnit = unit;
 }
-

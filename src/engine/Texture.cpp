@@ -23,15 +23,17 @@ TextureData::TextureData()
 {
     ;
 }
- 
-TextureData::TextureData(int width, int height, int channels, TexelType type, const unsigned char* data)
+
+TextureData::TextureData(int width, int height, int channels, TexelType type,
+                         const unsigned char *data)
     : mWidth(width)
     , mHeight(height)
     , mChannels(channels)
     , mType(type)
 {
-    Debug("width=%d height=%d channels=%d type=%d data=%p.", width, height, channels, type, data);
-    
+    Debug("width=%d height=%d channels=%d type=%d data=%p.", width, height,
+          channels, type, data);
+
     resize(width, height, channels, type, data);
 }
 
@@ -40,22 +42,25 @@ TextureData::~TextureData()
     ;
 }
 
-void TextureData::resize(int width, int height, int channels, TexelType type, const unsigned char* data)
+void TextureData::resize(int width, int height, int channels, TexelType type,
+                         const unsigned char *data)
 {
-    Debug("width=%d height=%d channels=%d type=%d data=%p.", width, height, channels, type, data);
-    
-    assert(width>0 && height>0 && channels>0 && data && type != TextureData::Texel_Invalid);
+    Debug("width=%d height=%d channels=%d type=%d data=%p.", width, height,
+          channels, type, data);
+
+    assert(width > 0 && height > 0 && channels > 0 && data && type != TextureData::Texel_Invalid);
     mWidth = width;
     mHeight = height;
     mChannels = channels;
     mType = type;
-    
+
     // clear existing data
     mData.clear();
-    
+
     // compute texel width in bytes
     size_t texelWidth = (int)type;
-    mData.insert(mData.begin(), data, data + (width*height*channels*texelWidth));
+    mData.insert(mData.begin(), data,
+                 data + (width * height * channels * texelWidth));
 }
 
 int TextureData::getWidth() const
@@ -78,42 +83,43 @@ TextureData::TexelType TextureData::getType() const
     return mType;
 }
 
-unsigned char* TextureData::getData()
+unsigned char *TextureData::getData()
 {
     return &mData[0];
 }
 
-const unsigned char* TextureData::getData() const 
+const unsigned char *TextureData::getData() const
 {
     return &mData[0];
 }
 
-unsigned char* TextureData::operator[](const unsigned int& index)
+unsigned char *TextureData::operator[](const unsigned int &index)
 {
     // compute texel width in bytes
     const size_t texelWidth = (size_t)mType;
-    return &mData[index*texelWidth*mChannels];
+    return &mData[index * texelWidth * mChannels];
 }
 
-unsigned char* TextureData::operator()(const unsigned int& x, const unsigned int& y)
+unsigned char *TextureData::operator()(const unsigned int &x,
+                                       const unsigned int &y)
 {
     // compute texel width in bytes
     const size_t texelWidth = (size_t)mType;
-    return &(mData[texelWidth*(y * mWidth * mChannels + x)]);
+    return &(mData[texelWidth * (y * mWidth * mChannels + x)]);
 }
 
 void TextureData::flipImageVertical()
 {
     // compute texel width in bytes
     const size_t texelWidth = (size_t)mType;
-    const size_t lineWidth  = texelWidth * mChannels * mWidth;
+    const size_t lineWidth = texelWidth * mChannels * mWidth;
     std::vector<unsigned char> scanline;
     scanline.resize(lineWidth);
-    for(int ii=0; ii<=mHeight / 2; ++ii)
+    for (int ii = 0; ii <= mHeight / 2; ++ii)
     {
-        unsigned char* ptr_to   = &mData[ii * lineWidth];
-        unsigned char* ptr_from = &mData[(mHeight - 1 - ii) * lineWidth];
-        scanline.assign(ptr_to, ptr_to+lineWidth);
+        unsigned char *ptr_to = &mData[ii * lineWidth];
+        unsigned char *ptr_from = &mData[(mHeight - 1 - ii) * lineWidth];
+        scanline.assign(ptr_to, ptr_to + lineWidth);
         memcpy(ptr_to, ptr_from, lineWidth);
         memcpy(ptr_from, &scanline[0], lineWidth);
     }
@@ -126,7 +132,7 @@ Texture::Texture()
     : mIsDirty(false)
     , mGenerateMipmaps(true)
 {
-   glGenTextures(1, &mTexture);
+    glGenTextures(1, &mTexture);
 }
 
 Texture::~Texture()
@@ -134,68 +140,69 @@ Texture::~Texture()
     glDeleteTextures(1, &mTexture);
 }
 
-bool Texture::loadFromFile(const char* filename)
+bool Texture::loadFromFile(const char *filename)
 {
-    if(!filename)
+    if (!filename)
     {
         Fatal("null filename.");
         return false;
     }
-    
-    int c, width, height;   
-    const GLubyte* loadedData = stbi_load(filename, &width, &height, &c, 4);
-    if( loadedData != NULL )
+
+    int c, width, height;
+    const GLubyte *loadedData = stbi_load(filename, &width, &height, &c, 4);
+    if (loadedData != NULL)
     {
         mIsDirty = true;
-        
+
         Debug("loaded %s (%d x %d) with %d channels.", filename, width, height, c);
         Debug("forcing RGBA.");
-        
+
         // copy data to internal buffer and release
         mData.resize(width, height, 4, TextureData::Texel_U8, loadedData);
-        stbi_image_free((void*)loadedData);
-                
+        stbi_image_free((void *)loadedData);
+
         // some file extensions require flipping
         std::string extension = filename;
         size_t itr = extension.rfind(".");
-        if(itr!=std::string::npos)
+        if (itr != std::string::npos)
         {
-            extension = extension.substr(itr + 1, extension.length()-itr);
+            extension = extension.substr(itr + 1, extension.length() - itr);
             Debug("file is of type %s.", extension.c_str());
-            if(extension != "bmp")
+            if (extension != "bmp")
             {
-                //textureVFlip(mData.getData(), width, height);
+                // textureVFlip(mData.getData(), width, height);
                 mData.flipImageVertical();
                 Debug("inverting scanlines.");
             }
         }
-        
+
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-    else {
-        Error("Error loading %s. (%s).", filename, stbi_failure_reason() );
+    else
+    {
+        Error("Error loading %s. (%s).", filename, stbi_failure_reason());
         return false;
     }
-    
+
     return true;
 }
 
-bool Texture::setFromData(const TextureData& data)
+bool Texture::setFromData(const TextureData &data)
 {
     mIsDirty = true;
     mData = data;
     return true;
 }
 
-TextureData& Texture::getDataRW()
+TextureData &Texture::getDataRW()
 {
-    mIsDirty = true;    // automatically mark as dirty
+    mIsDirty = true; // automatically mark as dirty
     return mData;
 }
 
-const TextureData& Texture::getDataRO() const
+const TextureData &Texture::getDataRO() const
 {
-    return mData;    
+    return mData;
 }
 
 void Texture::dirty()
@@ -203,28 +210,36 @@ void Texture::dirty()
     mIsDirty = true;
 }
 
-bool Texture::operator==(const Texture& rhs) const
+bool Texture::operator==(const Texture &rhs) const
 {
     return mTexture == rhs.mTexture;
 }
 
-void Texture::setParameter( Texture::Parameter param, unsigned int value )
+void Texture::setParameter(Texture::Parameter param, unsigned int value)
 {
     GLenum glparam;
-    
-    switch( param )
+
+    switch (param)
     {
-        case MinFilter: glparam = GL_TEXTURE_MIN_FILTER; break;
-        case MagFilter: glparam = GL_TEXTURE_MAG_FILTER; break;
-        case Wrap_S: glparam = GL_TEXTURE_WRAP_S; break;
-        case Wrap_T: glparam = GL_TEXTURE_WRAP_T; break;
-        default:
-            return;
-            break;
+    case MinFilter:
+        glparam = GL_TEXTURE_MIN_FILTER;
+        break;
+    case MagFilter:
+        glparam = GL_TEXTURE_MAG_FILTER;
+        break;
+    case Wrap_S:
+        glparam = GL_TEXTURE_WRAP_S;
+        break;
+    case Wrap_T:
+        glparam = GL_TEXTURE_WRAP_T;
+        break;
+    default:
+        return;
+        break;
     }
-    
+
     bind();
-    glTexParameteriv(GL_TEXTURE_2D, glparam, (GLint*)&value);
+    glTexParameteriv(GL_TEXTURE_2D, glparam, (GLint *)&value);
 }
 
 int Texture::getWidth() const
@@ -241,7 +256,7 @@ unsigned int Texture::getObject()
 {
     return mTexture;
 }
-    
+
 void Texture::bind()
 {
     _updateImageData();
@@ -260,57 +275,71 @@ void Texture::disableGenerateMipmaps()
 
 void Texture::_updateImageData()
 {
-    if(mIsDirty)
+    if (mIsDirty)
     {
         mIsDirty = false;
-        //Debug("texture %d has dirty data, refreshing.", mTexture);
+        // Debug("texture %d has dirty data, refreshing.", mTexture);
         Info("texture %d has dirty data, refreshing.", mTexture);
-       
+
         glBindTexture(GL_TEXTURE_2D, mTexture);
-        
+
         GLenum texelType = GL_RGBA;
-        
-        switch(mData.getChannels())
+
+        switch (mData.getChannels())
         {
-            case 1: texelType = GL_RED; break;
-            case 2: texelType = GL_RG; break;
-            case 3: texelType = GL_RGB; break;
-            case 4: texelType = GL_RGBA; break;
-            default: 
-            {
-                Warning("invalid channel count, ignoring data."); 
-                return; 
-                break;
-            }
+        case 1:
+            texelType = GL_RED;
+            break;
+        case 2:
+            texelType = GL_RG;
+            break;
+        case 3:
+            texelType = GL_RGB;
+            break;
+        case 4:
+            texelType = GL_RGBA;
+            break;
+        default:
+        {
+            Warning("invalid channel count, ignoring data.");
+            return;
+            break;
         }
-        
+        }
+
         GLenum dataType;
-        switch(mData.getType())
+        switch (mData.getType())
         {
-            case TextureData::Texel_U8: dataType = GL_UNSIGNED_BYTE; break;
-            case TextureData::Texel_F32: dataType = GL_FLOAT; break;
-            
-            case TextureData::Texel_Invalid: // intentional fall-through
-            default: 
-            {
-                Warning("invalid channel size, ignoring data."); 
-                return; 
-                break;
-            }
-        }
-        
-        if(mData.getType()!=TextureData::Texel_F32)
+        case TextureData::Texel_U8:
+            dataType = GL_UNSIGNED_BYTE;
+            break;
+        case TextureData::Texel_F32:
+            dataType = GL_FLOAT;
+            break;
+
+        case TextureData::Texel_Invalid: // intentional fall-through
+        default:
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, texelType, mData.getWidth(), mData.getHeight(), 0, texelType, dataType, mData.getData());
+            Warning("invalid channel size, ignoring data.");
+            return;
+            break;
         }
-        else 
+        }
+
+        if (mData.getType() != TextureData::Texel_F32)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, texelType, mData.getWidth(),
+                         mData.getHeight(), 0, texelType, dataType, mData.getData());
+        }
+        else
         {
             // support non-normalized textures
             // possible to use GL_RGBA32F as well if you need more resolution
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mData.getWidth(), mData.getHeight(), 0, texelType, dataType, mData.getData());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mData.getWidth(),
+                         mData.getHeight(), 0, texelType, dataType, mData.getData());
         }
-	
-        if(mGenerateMipmaps)
+
+        if (mGenerateMipmaps)
         {
             Info("generating mipmaps.");
             glGenerateMipmap(GL_TEXTURE_2D);

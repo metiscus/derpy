@@ -9,60 +9,65 @@
 
 #include "Logging.h"
 
-// technique implemented from 
+// technique implemented from
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 
 RenderToTexture::RenderToTexture(int width, int height, TextureType type)
     : mTexture(new Texture())
     , mWidth(width)
     , mHeight(height)
-{    
+{
     Debug("width=%d height=%d type=%d.", width, height, type);
-    
+
     glGenFramebuffers(1, &mFrameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
 
-    if(type==Depth_16 || type==Depth_24)
+    if (type == Depth_16 || type == Depth_24)
     {
         Debug("making a depth buffer.");
-        
+
         GLuint depthrenderbuffer;
         glGenRenderbuffers(1, &depthrenderbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer); 
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                  GL_RENDERBUFFER, depthrenderbuffer);
     }
 
     // build the texture
     mTexture->bind();
-    switch(type)
+    switch (type)
     {
-        case Color_RGB:
-            glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    case Color_RGB:
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                     GL_UNSIGNED_BYTE, 0);
         break;
-        
-        case Depth_16:
-            glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+    case Depth_16:
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0,
+                     GL_DEPTH_COMPONENT, GL_FLOAT, 0);
         break;
-        
-        case Depth_24:
-            glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT24, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+    case Depth_24:
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0,
+                     GL_DEPTH_COMPONENT, GL_FLOAT, 0);
         break;
     }
-    
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     // attach the buffer
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mTexture->getObject(), 0);
-    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                         mTexture->getObject(), 0);
+    GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, DrawBuffers);
-    
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         Error("failed to create the requested renderbuffer.");
     }
-    
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

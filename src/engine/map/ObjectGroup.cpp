@@ -7,27 +7,27 @@ namespace map
 
 ObjectGroup::ObjectGroup()
 {
-    
 }
 
-ObjectGroup::ObjectGroup( rapidxml::xml_node<>* node )
+ObjectGroup::ObjectGroup(rapidxml::xml_node<> *node)
 {
     load(node);
 }
 
-void ObjectGroup::load( rapidxml::xml_node<>* groupNode )
+void ObjectGroup::load(rapidxml::xml_node<> *groupNode)
 {
-    if(!groupNode)
+    if (!groupNode)
     {
         Error("(null) node passed in.");
     }
-    else 
+    else
     {
-        for(rapidxml::xml_node<> *itr = groupNode->first_node("object"); itr; itr = itr->next_sibling())
+        for (rapidxml::xml_node<> *itr = groupNode->first_node("object"); itr;
+             itr = itr->next_sibling())
         {
-            Info( itr->value() );
-            MapObject *pObj = MapObject::load( itr );
-            if(pObj)
+            Info(itr->value());
+            MapObject *pObj = MapObject::load(itr);
+            if (pObj)
             {
                 std::shared_ptr<MapObject> ptr;
                 ptr.reset(pObj);
@@ -36,7 +36,7 @@ void ObjectGroup::load( rapidxml::xml_node<>* groupNode )
         }
     }
 }
-//void ObjectGroup::save( rapidxml::xml_node<>* mapNode );
+// void ObjectGroup::save( rapidxml::xml_node<>* mapNode );
 
 ObjectGroup::ObjectList ObjectGroup::getObjects()
 {
@@ -47,5 +47,4 @@ size_t ObjectGroup::getObjectCount() const
 {
     return mObjects.size();
 }
-
 }
