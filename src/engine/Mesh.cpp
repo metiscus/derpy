@@ -9,6 +9,7 @@
 
 #include "Logging.h"
 #include "Mesh.h"
+#include "VBO.h"
 
 enum VertexAttribs
 {
@@ -18,18 +19,16 @@ enum VertexAttribs
 };
 
 Mesh::Mesh()
-    : mIsBufferDirty(false)
+    : mVBO(new VBO(VBO::ArrayBuffer))
+    , mElementBuffer(new VBO(VBO::ElementArrayBuffer))
+    , mIsBufferDirty(false)
     , mUseColor(true)
     , mUseIndexedDrawing(false)
 {
-    glGenBuffers(1, &mVBO);
-    glGenBuffers(1, &mElementBuffer);
 }
 
 Mesh::~Mesh()
 {
-    glDeleteBuffers(1, &mVBO);
-    glDeleteBuffers(1, &mElementBuffer);
 }
 
 void Mesh::_synchronizeDataBuffers()
@@ -38,14 +37,10 @@ void Mesh::_synchronizeDataBuffers()
     {
         Debug("rebuilding VBO due to dirty buffer flag: %d.", mData.size());
         mIsBufferDirty = false;
-        glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-        glBufferData(GL_ARRAY_BUFFER, mData.size() * sizeof(float), &mData[0],
-                     GL_DYNAMIC_DRAW);
+        mVBO->setData(&mData[0], mData.size() * sizeof(float), VBO::DynamicDraw);
         if (mUseIndexedDrawing)
         {
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mElementBuffer);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(short),
-                         &mIndices[0], GL_DYNAMIC_DRAW);
+            mElementBuffer->setData(&mIndices[0], mIndices.size() * sizeof(short), VBO::DynamicDraw);
         }
     }
 }
@@ -57,14 +52,14 @@ void Mesh::draw()
     if (mUseIndexedDrawing)
     {
         // Info("using indexed drawing");
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mElementBuffer);
+        mElementBuffer->bind();
     }
     else
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        mElementBuffer->unbind();
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+    mVBO->bind();
     glEnableVertexAttribArray(PositionAttr);
     glEnableVertexAttribArray(TexCoordAttr);
 
@@ -99,11 +94,11 @@ void Mesh::draw()
         glDisableVertexAttribArray(ColorAttr);
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    mVBO->unbind();
 
     if (mUseIndexedDrawing)
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        mElementBuffer->unbind();
     }
 }
 

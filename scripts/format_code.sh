@@ -6,7 +6,7 @@ for file in `find ../src -name "*.cpp"`;
 do
 	cp $file $file.bak
 	clang-format -style="file" $file.bak > $file;
-	diff $file $file.bak || echo $file was modified.
+	diff $file $file.bak > /dev/null || echo $file was modified.
 done
 
 echo ==== Cleaning Up ====

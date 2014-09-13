@@ -7,6 +7,7 @@
 #include <vector>
 
 class Texture;
+class VBO;
 
 typedef std::vector<glm::vec3> VertexList;
 typedef std::vector<glm::vec4> ColorList;
@@ -40,8 +41,8 @@ public:
     void reset();
     
 private:
-    unsigned int mVBO;                      //!< OpenGL Vertex Buffer Object
-    unsigned int mElementBuffer;            //!< OpenGL element index array 
+    std::shared_ptr<VBO> mVBO;
+    std::shared_ptr<VBO> mElementBuffer;
     bool mIsBufferDirty;                    //!< When true, the client data has changed and the server data needs updated
     bool mUseColor;                         //!< Pass along color information with the verts
     bool mUseIndexedDrawing;                //!< Draw with drawElements and use the element buffer vs drawArrays
