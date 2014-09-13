@@ -28,8 +28,8 @@ static const char* lightingFragmentShaderText =
 "    vec4 lightPosInfo   = texelFetch(lightSampler, ivec2(0,ii), 0);\n"
 "    vec4 lightColorInfo = texelFetch(lightSampler, ivec2(1,ii), 0);\n"
 "	 vec3 distanceVec = lightPosInfo.xyz - position;\n"
-"    float distanceSqr = dot(distanceVec, distanceVec);\n"
-"	 outColor += lightColorInfo.xyz * color.xyz * (distanceSqr / lightPosInfo.w);\n"
+"    float intensity  = dot(distanceVec, distanceVec);\n"
+"	 outColor += lightColorInfo.xyz * color.xyz * intensity;\n"
 "  }\n"
 "}\n";
 
