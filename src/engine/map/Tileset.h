@@ -38,6 +38,8 @@ public:
     
     std::string getName() const;
 
+    //\TODO: expose tile width and height
+
 private:
     uint32_t mFirstGid;
     uint32_t mLastGid;

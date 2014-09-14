@@ -9,6 +9,7 @@
 #include "map/MapObject.h"
 
 #include "Camera.h"
+#include "DebugRenderer.h"
 #include "Logging.h"
 #include "MeshRenderer.h"
 #include "Mesh.h"
@@ -149,8 +150,12 @@ int main(void)
     const char *ObjectTypeName[] = { "InvalidObjectType", "RectangleObjectType",
                                      "PolygonObjectType", "PolylineObjectType" };
 
+
     b2Vec2 gravity(0.f, -10.f);
     b2World physics_world(gravity);
+    
+    // debug render
+    std::shared_ptr<DebugRenderer> debugRenderer(new DebugRenderer());
 
     std::vector<b2Body *> physicsBodies;
 
@@ -180,15 +185,39 @@ int main(void)
                     Trace("Creating dynamic body.");
                 }
 
-                boxDef.position = b2Vec2(rectPtr->getX(), rectPtr->getY());
+                //\Note: these need converted by /32?
+                //HACK!! flipping due to coordinate issues
+                float x, y, width, height;
+                x = rectPtr->getX() / 64.f - 1;
+                y = rectPtr->getY() / 64.f - 1;
+                width = rectPtr->getW() / 64.f; 
+                height = rectPtr->getH() / 64.f;
+
+                boxDef.position = b2Vec2(x, y);
                 b2Body *boxBody = physics_world.CreateBody(&boxDef);
                 physicsBodies.push_back(boxBody);
 
                 b2PolygonShape boxShape;
-                boxShape.SetAsBox(rectPtr->getW(), rectPtr->getH());
+                boxShape.SetAsBox(width, height);
                 boxBody->CreateFixture(&boxShape, 0.0f);
 
                 // debug properties
+                //// TESTTESTTEST
+                std::vector<glm::vec3> debugBox;
+                offset = glm::vec3(layer->getWidth(), layer->getHeight(), 0.0);
+                debugBox.push_back(offset - glm::vec3(x, y, 0.f));
+                debugBox.push_back(offset - glm::vec3(x + width, y, 0.f));
+
+                debugBox.push_back(offset - glm::vec3(x + width, y, 0.f));
+                debugBox.push_back(offset - glm::vec3(x + width, y + height, 0.f));
+
+                debugBox.push_back(offset - glm::vec3(x + width, y + height, 0.f));
+                debugBox.push_back(offset - glm::vec3(x, y + height, 0.f));
+
+                debugBox.push_back(offset - glm::vec3(x, y + height, 0.f));
+                debugBox.push_back(offset - glm::vec3(x, y, 0.f));
+
+                debugRenderer->addLines(debugBox, glm::vec3(0.f, 0.f, 1.f));
             }
         }
     }
@@ -237,6 +266,8 @@ int main(void)
         mapRenderer.draw(boxMesh);
 
         mapRenderer.end();
+
+        debugRenderer->draw(mapRenderer.getCamera());
 
         physics_world.Step(1.0f / 60.0f, 6, 2);
 
