@@ -3,8 +3,13 @@
 Camera::Camera()
 {
     // the user expects y to be up
-    setView(glm::vec3(0., 0., 0.f), glm::vec3(0., 0., 1.f),
-            glm::vec3(0., 1., 0.f));
+    setView(
+    	glm::vec3(0., 0., 0.0f), 
+    	glm::vec3(0., 0., -1.f),
+        glm::vec3(0., 1., 0.f)
+    );
+
+    setOrthographic(0, 1, 0, 1, -1, 1);
 }
 
 void Camera::setOrthographic(float left, float right, float bottom, float top,
