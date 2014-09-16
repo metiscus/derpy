@@ -1,0 +1,20 @@
+The game coordinate system works as follows:
+
+== Physics ==
+	= Units =
+	Mass unit is Kilogram
+	Dimension unit is meter
+
+	= Coordinates =
+	The X axis is perpindicular to gravity
+	The Y axis is colinear to gravity
+	Rotations are taken to be positive when the translate +X into +Y
+
+== Rendering ==
+	= Coordinates =
+	Screen coordinates are relative to the viewport size
+	The origin is on the lower left of the screen
+	The +X axis extends from the origin to the right corner of the screen
+	The +Y axis extends from the origin to the top of the screen 
+	The +Z axis extends out of the screen (The coordinate system is right handed)
+	Positive rotation about +Z translates +X into +Y
