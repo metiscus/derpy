@@ -159,6 +159,8 @@ int main(void)
 
     std::vector<b2Body *> physicsBodies;
 
+    float scaleFactor = 32.f;
+
     map::Map::ObjectGroupList objectGroups = map.getObjectGroups();
     map::Map::ObjectGroupList::iterator grpItr;
     for (grpItr = objectGroups.begin(); grpItr != objectGroups.end(); ++grpItr)
@@ -198,24 +200,24 @@ int main(void)
                 physicsBodies.push_back(boxBody);
 
                 b2PolygonShape boxShape;
-                boxShape.SetAsBox(width, height);
+                boxShape.SetAsBox(scaleFactor * width, scaleFactor * height);
                 boxBody->CreateFixture(&boxShape, 0.0f);
 
                 // debug properties
                 //// TESTTESTTEST
                 std::vector<glm::vec3> debugBox;
-                offset = glm::vec3(layer->getWidth(), layer->getHeight(), 0.0);
-                debugBox.push_back(offset - glm::vec3(x, y, 0.f));
-                debugBox.push_back(offset - glm::vec3(x + width, y, 0.f));
+                offset = scaleFactor * glm::vec3(layer->getWidth(), layer->getHeight(), 0.0);
+                debugBox.push_back(offset - scaleFactor * glm::vec3(x, y, 0.f));
+                debugBox.push_back(offset - scaleFactor * glm::vec3(x + width, y, 0.f));
 
-                debugBox.push_back(offset - glm::vec3(x + width, y, 0.f));
-                debugBox.push_back(offset - glm::vec3(x + width, y + height, 0.f));
+                debugBox.push_back(offset - scaleFactor * glm::vec3(x + width, y, 0.f));
+                debugBox.push_back(offset - scaleFactor * glm::vec3(x + width, y + height, 0.f));
 
-                debugBox.push_back(offset - glm::vec3(x + width, y + height, 0.f));
-                debugBox.push_back(offset - glm::vec3(x, y + height, 0.f));
+                debugBox.push_back(offset - scaleFactor * glm::vec3(x + width, y + height, 0.f));
+                debugBox.push_back(offset - scaleFactor * glm::vec3(x, y + height, 0.f));
 
-                debugBox.push_back(offset - glm::vec3(x, y + height, 0.f));
-                debugBox.push_back(offset - glm::vec3(x, y, 0.f));
+                debugBox.push_back(offset - scaleFactor * glm::vec3(x, y + height, 0.f));
+                debugBox.push_back(offset - scaleFactor * glm::vec3(x, y, 0.f));
 
                 debugRenderer->addLines(debugBox, glm::vec3(0.f, 0.f, 1.f));
             }
@@ -231,9 +233,9 @@ int main(void)
     boxMesh->addTriangles(verts, texCoords, emptyColorList, indexList);
 
     mapRenderer.getCamera()->setView(glm::vec3(0.0, 0.0, 0.0),
-                                     glm::vec3(0.0, 0.0, 1.0),
+                                     glm::vec3(0.0, 0.0, -1.0),
                                      glm::vec3(0.0, 1.0, 0.0));
-    mapRenderer.getCamera()->setOrthographic(-50, 0, 0, 50, -1, 1);
+    mapRenderer.getCamera()->setOrthographic(0, gWidth, 0, gHeight, -1, 1);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -249,8 +251,25 @@ int main(void)
 
     Sampler sampler;
 
+    boxMesh->scale(glm::vec3(scaleFactor, scaleFactor, 1.f));
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    //build crate
+    glm::vec3 cratePos(10.f, 20.f, 0.f);
+    cratePos *= scaleFactor;
+
+    b2BodyDef crateDef;
+    crateDef.type = b2_dynamicBody;
+
+    crateDef.position = b2Vec2(cratePos.x, cratePos.y);
+    b2Body *crateBody = physics_world.CreateBody(&crateDef);
+    physicsBodies.push_back(crateBody);
+
+    b2PolygonShape crateShape;
+    crateShape.SetAsBox(5, 5);
+    crateBody->CreateFixture(&crateShape, 1.0f);
 
     while (!glfwWindowShouldClose(gWindow))
     {
@@ -266,6 +285,15 @@ int main(void)
         mapRenderer.draw(boxMesh);
 
         mapRenderer.end();
+
+        b2Vec2 pPos = crateBody->GetPosition();
+        glm::vec3 newPos (pPos.x, pPos.y, 0.f);
+
+        std::vector<glm::vec3> lines;
+        lines.push_back(cratePos);
+        lines.push_back(newPos);
+        cratePos = newPos;
+        debugRenderer->addLines(lines, glm::vec3(1.f, 1.f, 1.f));
 
         debugRenderer->draw(mapRenderer.getCamera());
 
