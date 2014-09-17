@@ -51,7 +51,7 @@ void animate()
     floats[1] = 3.0f * sin(theta);
     floats[8] = 10.0f * cos(2 * 3.14159265 - theta * 0.2);
     floats[9] = 0.5; // 5.0f * sin(2 * 3.14159265 - theta);
-    theta = fmod(theta, 1 / 0.2 * 2 * 3.14159265);
+    theta = fmod(theta, 1.0f / 0.2f * 2.f * 3.14159265f);
 
     lightingTex->dirty();
 }

@@ -26,6 +26,11 @@
 #if defined(WIN32)
 #define WithMemory
 #define WithArray
+
+#if defined(WIN32)
+#define snprintf _snprintf
+#endif
+
 #else
 #define WithTr1Memory
 #define WithTr1Array

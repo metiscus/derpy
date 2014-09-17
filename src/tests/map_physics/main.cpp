@@ -286,21 +286,25 @@ int main(void)
 
         mapRenderer.end();
 
-        b2Vec2 pPos = crateBody->GetPosition();
-        glm::vec3 newPos (pPos.x, pPos.y, 0.f);
-
-        std::vector<glm::vec3> lines;
-        lines.push_back(cratePos);
-        lines.push_back(newPos);
-        cratePos = newPos;
-        debugRenderer->addLines(lines, glm::vec3(1.f, 1.f, 1.f));
-
         debugRenderer->draw(mapRenderer.getCamera());
 
         physics_world.Step(1.0f / 60.0f, 6, 2);
 
         glfwSwapBuffers(gWindow);
         glfwPollEvents();
+        
+        // update physics after the draw
+        b2Vec2 pPos = crateBody->GetPosition();
+        glm::vec3 newPos (pPos.x, pPos.y, 0.f);
+
+        if((newPos-cratePos).length() > 0.1 )
+        {
+            std::vector<glm::vec3> lines;
+            lines.push_back(cratePos);
+            lines.push_back(newPos);
+            cratePos = newPos;
+            debugRenderer->addLines(lines, glm::vec3(1.f, 1.f, 1.f));
+        }
     }
 
     glfwDestroyWindow(gWindow);

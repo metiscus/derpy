@@ -7,6 +7,7 @@ include_directories(engine/util)
 
 file(GLOB_RECURSE derpus_SOURCES engine/*.cpp engine/*.h)
 
-add_library(derpus SHARED ${derpus_SOURCES})
+add_library(derpus STATIC ${derpus_SOURCES})
+target_link_libraries(derpus glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
 
 add_subdirectory(tests)

@@ -125,8 +125,8 @@ void DebugRenderer::draw(std::shared_ptr<Camera> camera)
 	    	data.push_back(mColors[ii].z);
 	    }
       
-      mVBO->bind();
-      mElementBuffer->bind();
+        mVBO->bind();
+        mElementBuffer->bind();
 	    mVBO->setData(&data[0], data.size() * sizeof(float), VBO::DynamicDraw);
 	    mElementBuffer->setData(&mIndices[0], mIndices.size() * sizeof(short), VBO::DynamicDraw);
 
@@ -149,7 +149,7 @@ void DebugRenderer::draw(std::shared_ptr<Camera> camera)
     glVertexAttribPointer(ColorAttr, 3, GL_FLOAT, GL_FALSE, stride,
                           (void *)(sizeof(float) * 3));
 
-    glDrawElements(GL_LINES, mPrimitiveCount * 6, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_LINES, mPrimitiveCount, GL_UNSIGNED_SHORT, 0);
 
     glDisableVertexAttribArray(ColorAttr);
     glDisableVertexAttribArray(PositionAttr);

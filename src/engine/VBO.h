@@ -1,6 +1,7 @@
 #ifndef VBO_H_
 #define VBO_H_
 
+#include "Platform.h"
 #include "Noncopyable.h"
 
 /**

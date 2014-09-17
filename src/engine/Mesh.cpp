@@ -160,7 +160,7 @@ void Mesh::addTriangles(const VertexList &verts, const TexCoordList &texcoords,
 
         mIndices.insert(mIndices.end(), indices.begin(), indices.end());
 
-        for (unsigned int triangle = 0; triangle < 3 * numTriangles; ++triangle)
+        for (unsigned int triangle = 0; triangle < verts.size(); ++triangle)
         {
             mData.push_back(verts[triangle].x);
             mData.push_back(verts[triangle].y);

@@ -7,9 +7,11 @@
 #include "Sampler.h"
 #include "Shader.h"
 #include "Program.h"
+#include "Platform.h"
 #include "Texture.h"
 #include "Uniform.h"
 
+#include <cstdio>
 #include <string>
 
 // parameters

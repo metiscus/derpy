@@ -16,6 +16,9 @@ void LogImpl(int level, const char *function, const char *format, ...)
         char *saveptr;
         char *tmpStr = strdup(function);
         char *className = strtok_r(tmpStr, "(", &saveptr);
+#elif defined(WIN32)
+        char *tmpStr = strdup(function);
+        char *className = strtok(tmpStr, "(");
 #endif
         fprintf(stderr, "%s [%s] ", levelTag[level], className);
         vfprintf(stderr, format, args);
