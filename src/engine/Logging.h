@@ -23,7 +23,9 @@
 #define LOG_ERROR   2
 #define LOG_FATAL   1
 #define LOG_NONE    0
-#define LOG_LEVEL LOG_DEBUG
+#ifndef LOG_LEVEL
+#define LOG_LEVEL LOG_TRACE
+#endif
 
 void LogImpl(int level, const char* function, const char* format, ...);
 

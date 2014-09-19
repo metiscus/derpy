@@ -30,3 +30,5 @@ target_link_libraries(map_parse derpus glfw glew ${OPENGL_LIBRARIES} ${GLFW_LIBR
 add_executable(map_physics map_physics/main.cpp)
 add_dependencies(map_physics derpus)
 target_link_libraries(map_physics derpus glfw glew Box2D ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
+
+add_subdirectory(dynamic_map)
