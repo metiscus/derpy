@@ -2,10 +2,19 @@
 
 include_directories(common)
 
-add_executable(dynamic_map_server server/server.cpp common/TankMap.cpp)
+set(COMMON_SRC common/Network.cpp common/TankMap.cpp)
 
-add_executable(dynamic_map client/client.cpp common/TankMap.cpp)
+set(SERVER_SRC 
+	server/server.cpp
+	server/GameSession.cpp
+)
 
-add_dependencies(dynamic_map derpus)
+add_executable(tankServer ${SERVER_SRC} ${COMMON_SRC})
 
-target_link_libraries(dynamic_map derpus glfw glew Box2D ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
+add_executable(tankClient client/client.cpp ${COMMON_SRC})
+
+add_dependencies(tankClient derpus)
+add_dependencies(tankServer derpus)
+
+target_link_libraries(tankClient derpus glfw glew Box2D ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
+target_link_libraries(tankServer derpus glfw glew Box2D ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES})
